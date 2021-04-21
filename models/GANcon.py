@@ -1,0 +1,9 @@
+import torch.nn as nn
+import torch.nn.functional as F
+
+class GANcon(nn.Module):
+    def __init__(self):
+        self(self, GANcon).__init__()
+
+    # TODO: Complete the GANcon model by 2021/5/5, task assigned to Hongjie Fang.
+    
