@@ -3,7 +3,8 @@
 */.DS_Store
 .vscode/
 .history/
-
+data/feature/
+data/label/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
