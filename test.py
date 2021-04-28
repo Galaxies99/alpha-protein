@@ -40,11 +40,8 @@ if "name" not in NETWORK.keys():
 NETWORK_NAME = NETWORK["name"]
 
 # Load data & Build dataset
-train_dataset = ProteinDataset('data/train/feature', 'data/train/label')
-train_dataloader = DataLoader(train_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn)
-
-val_dataset = ProteinDataset('data/val/feature', 'data/val/label')
-val_dataloader = DataLoader(val_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn)
+test_dataset = ProteinDataset('data/test/feature', 'data/test/label')
+test_dataloader = DataLoader(test_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn)
 
 # Build model from configs
 if NETWORK_NAME == "SampleNet":
@@ -59,7 +56,6 @@ elif NETWORK_NAME == "GANcon":
     model = GANcon(NETWORK)
 else:
     raise AttributeError("Invalid Network.")
-
 
 if MULTIGPU is False:
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -79,10 +75,10 @@ criterion = MaskedCrossEntropyLoss()
 # Define Scheduler
 lr_scheduler = MultiStepLR(optimizer, milestones = MILESTONES, gamma = GAMMA)
 
-# Read checkpoints
-start_epoch = 0
-if os.path.exists(CHECKPOINT_DIR) == False:
-    os.mkdir(CHECKPOINT_DIR)
+if MULTIGPU is True:
+    model = torch.nn.DataParallel(model)
+
+# Read model from checkpoints
 checkpoint_file = os.path.join(CHECKPOINT_DIR, 'checkpoint_{}.tar'.format(NETWORK_NAME))
 if os.path.isfile(checkpoint_file):
     checkpoint = torch.load(checkpoint_file)
@@ -91,61 +87,15 @@ if os.path.isfile(checkpoint_file):
     start_epoch = checkpoint['epoch']
     lr_scheduler.load_state_dict(checkpoint['scheduler'])
     print("Load checkpoint {} (epoch {})".format(checkpoint_file, start_epoch))
-
-if MULTIGPU is True:
-    model = torch.nn.DataParallel(model)
-
-
-def train_one_epoch():
-    model.train()
-    for idx, data in enumerate(train_dataloader):
-        optimizer.zero_grad()
-        feature, label, mask = data
-        feature = feature.to(device)
-        label = label.to(device)
-        mask = mask.to(device)
-        # Forward
-        result = model(feature)
-        # Backward
-        loss = criterion(result, label, mask)
-        loss.backward()
-        optimizer.step()
-
-        print('--------------- Train Batch %d ---------------' % (idx + 1))
-        print('loss: %.12f' % loss.item())
+else:
+    raise AttributeError('No checkpoint file!')
 
 
-def train(start_epoch):
-    global cur_epoch
-    for epoch in range(start_epoch, MAX_EPOCH):
-        cur_epoch = epoch
-        print('**************** Epoch %d ****************' % (epoch + 1))
-        print('learning rate: %f' % (lr_scheduler.get_last_lr()[0]))
-        train_one_epoch()
-        loss = eval_one_epoch()
-        lr_scheduler.step()
-        if MULTIGPU is False:
-            save_dict = {'epoch': epoch + 1, 'loss': loss,
-                         'optimizer_state_dict': optimizer.state_dict(),
-                         'model_state_dict': model.state_dict(),
-                         'scheduler': lr_scheduler.state_dict()
-                         }
-        else:
-            save_dict = {'epoch': epoch + 1, 'loss': loss,
-                         'optimizer_state_dict': optimizer.state_dict(),
-                         'model_state_dict': model.module.state_dict(),
-                         'scheduler': lr_scheduler.state_dict()
-                         }
-        torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint_{}.tar'.format(NETWORK_NAME)))
-        torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint_{}_{}.tar'.format(NETWORK_NAME, epoch)))
-        print('mean eval loss: %.12f' % loss)
-
-
-def eval_one_epoch():
+def test_one_epoch():
     model.eval()
     mean_loss = 0
     count = 0
-    for idx, data in enumerate(val_dataloader):
+    for idx, data in enumerate(test_dataloader):
         feature, label, mask = data
         feature = feature.to(device)
         label = label.to(device)
@@ -155,7 +105,7 @@ def eval_one_epoch():
         # Compute loss
         with torch.no_grad():
             loss = criterion(result, label, mask)
-        print('--------------- Eval Batch %d ---------------' % (idx + 1))
+        print('--------------- Test Batch %d ---------------' % (idx + 1))
         print('loss: %.12f' % loss.item())
         mean_loss += loss.item()
         count += 1
@@ -165,4 +115,6 @@ def eval_one_epoch():
 
 
 if __name__ == '__main__':
-    train(start_epoch)
+    result = test_one_epoch()
+    print('--------------- Test Result ---------------')
+    print('test mean loss: %.12f' % result)
