@@ -18,7 +18,7 @@ from models.GANcon import GANcon
 
 # Parse Arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('--cfg', default = 'configs/default.yaml', help = 'Config File', type = str)
+parser.add_argument('--cfg', default = os.path.join('configs', 'default.yaml'), help = 'Config File', type = str)
 FLAGS = parser.parse_args()
 CFG_FILE = FLAGS.cfg
 
@@ -40,10 +40,16 @@ if "name" not in NETWORK.keys():
 NETWORK_NAME = NETWORK["name"]
 
 # Load data & Build dataset
-train_dataset = ProteinDataset('data/train/feature', 'data/train/label')
+TRAIN_DIR = os.path.join('data', 'test')
+TRAIN_FEATURE_DIR = os.path.join(TRAIN_DIR, 'feature')
+TRAIN_LABEL_DIR = os.path.join(TRAIN_DIR, 'label')
+train_dataset = ProteinDataset(TRAIN_FEATURE_DIR, TRAIN_LABEL_DIR)
 train_dataloader = DataLoader(train_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn)
 
-val_dataset = ProteinDataset('data/val/feature', 'data/val/label')
+VAL_DIR = os.path.join('data', 'val')
+VAL_FEATURE_DIR = os.path.join(VAL_DIR, 'feature')
+VAL_LABEL_DIR = os.path.join(VAL_DIR, 'label')
+val_dataset = ProteinDataset(VAL_FEATURE_DIR, VAL_LABEL_DIR)
 val_dataloader = DataLoader(val_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn)
 
 # Build model from configs

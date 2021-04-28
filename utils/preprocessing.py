@@ -85,4 +85,4 @@ def divideDataset(source, target, reference = None):
     
 
 if __name__ == '__main__':
-    divideDataset('data', 'data', 'data/reference.json')
+    divideDataset('data', 'data', os.path.join('data', 'reference.json'))

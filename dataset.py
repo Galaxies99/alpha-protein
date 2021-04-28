@@ -57,7 +57,7 @@ class ProteinDataset(Dataset):
         g_file = tarfile.open(name)
         g_file.extractall(f_name)
         dir_ = os.listdir(f_name)
-        tmp_feature = np.load(f_name + '/' + dir_[0])
+        tmp_feature = np.load(os.path.join(f_name, dir_[0]))
         tmp_feature = np.transpose(tmp_feature, (2, 0, 1))
         shutil.rmtree(f_name)
         return tmp_feature

@@ -17,7 +17,7 @@ from models.GANcon import GANcon
 
 # Parse Arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('--cfg', default = 'configs/default.yaml', help = 'Config File', type = str)
+parser.add_argument('--cfg', default = os.path.join('configs', 'default.yaml'), help = 'Config File', type = str)
 FLAGS = parser.parse_args()
 CFG_FILE = FLAGS.cfg
 
@@ -33,7 +33,10 @@ if "name" not in NETWORK.keys():
 NETWORK_NAME = NETWORK["name"]
 
 # Load data & Build dataset
-test_dataset = ProteinDataset('data/test/feature', 'data/test/label')
+TEST_DIR = os.path.join('data', 'test')
+TEST_FEATURE_DIR = os.path.join(TEST_DIR, 'feature')
+TEST_LABEL_DIR = os.path.join(TEST_DIR, 'label')
+test_dataset = ProteinDataset(TEST_FEATURE_DIR, TEST_LABEL_DIR)
 test_dataloader = DataLoader(test_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn)
 
 # Build model from configs
