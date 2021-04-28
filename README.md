@@ -18,6 +18,15 @@ python utils/preprocessing.py
 ## Training
 
 ```
-python train.py
+python train.py --cfg [Config File]
 ```
 
+`[Config File]` is `config/default.yaml` by default.
+
+## Testing
+
+```
+python test.py --cfg [Config File]
+```
+
+`[Config File]` is `config/default.yaml` by default.
