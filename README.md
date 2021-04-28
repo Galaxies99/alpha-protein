@@ -17,7 +17,7 @@ python utils/preprocessing.py
 
 ## Training
 
-```
+```bash
 python train.py --cfg [Config File]
 ```
 
@@ -25,7 +25,7 @@ python train.py --cfg [Config File]
 
 ## Testing
 
-```
+```bash
 python test.py --cfg [Config File]
 ```
 

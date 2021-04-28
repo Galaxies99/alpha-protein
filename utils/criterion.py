@@ -60,3 +60,11 @@ def cal_top(label, mask, pred):
     return acc
 
 
+def calc_batch_acc(label, mask, pred):
+    acc_batch = np.zeros((2, 4))
+    batch_size = label.shape[0]
+    for i in range(batch_size):
+        acc_sample = cal_top(label[i], mask[i], pred[i])
+        acc_batch += acc_sample
+    acc_batch = acc_batch / batch_size
+    return acc_batch, batch_size

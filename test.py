@@ -5,10 +5,9 @@ import random
 import argparse
 import numpy as np
 from torch import optim
-from torch.optim import Adam
 from torch.utils.data import DataLoader
 from utils.loss import MaskedCrossEntropyLoss
-from torch.optim.lr_scheduler import MultiStepLR
+from utils.criterion import calc_batch_acc
 from dataset import ProteinDataset, collate_fn
 from models.SampleNet import SampleNet
 from models.DeepCov import DeepCov
@@ -27,12 +26,6 @@ with open(CFG_FILE, 'r') as cfg_file:
     
 BATCH_SIZE = cfg_dict.get('batch_size', 4)
 MULTIGPU = cfg_dict.get('multigpu', True)
-MAX_EPOCH = cfg_dict.get('max_epoch', 30)
-ADAM_BETA1 = cfg_dict.get('adam_beta1', 0.9)
-ADAM_BETA2 = cfg_dict.get('adam_beta2', 0.999)
-LEARNING_RATE = cfg_dict.get('learning_rate', 0.001)
-MILESTONES = cfg_dict.get('milestones', [int(MAX_EPOCH / 2)])
-GAMMA = cfg_dict.get('gamma', 0.1)
 CHECKPOINT_DIR = cfg_dict.get('checkpoint_dir', 'checkpoint')
 NETWORK = cfg_dict.get('network', {})
 if "name" not in NETWORK.keys():
@@ -66,14 +59,8 @@ else:
         raise EnvironmentError('No GPUs, cannot initialize multigpu training.')
     model.to(device)
 
-# Define optimizer
-optimizer = optim.Adam(model.parameters(), betas = (ADAM_BETA1, ADAM_BETA2), lr = LEARNING_RATE)
-
 # Define Criterion
 criterion = MaskedCrossEntropyLoss()
-
-# Define Scheduler
-lr_scheduler = MultiStepLR(optimizer, milestones = MILESTONES, gamma = GAMMA)
 
 if MULTIGPU is True:
     model = torch.nn.DataParallel(model)
@@ -83,9 +70,7 @@ checkpoint_file = os.path.join(CHECKPOINT_DIR, 'checkpoint_{}.tar'.format(NETWOR
 if os.path.isfile(checkpoint_file):
     checkpoint = torch.load(checkpoint_file)
     model.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     start_epoch = checkpoint['epoch']
-    lr_scheduler.load_state_dict(checkpoint['scheduler'])
     print("Load checkpoint {} (epoch {})".format(checkpoint_file, start_epoch))
 else:
     raise AttributeError('No checkpoint file!')
@@ -95,6 +80,7 @@ def test_one_epoch():
     model.eval()
     mean_loss = 0
     count = 0
+    acc = np.zeros((2, 4))
     for idx, data in enumerate(test_dataloader):
         feature, label, mask = data
         feature = feature.to(device)
@@ -105,16 +91,21 @@ def test_one_epoch():
         # Compute loss
         with torch.no_grad():
             loss = criterion(result, label, mask)
+        acc_batch, batch_size = calc_batch_acc(label.numpy(), mask.numpy(), result.numpy())
         print('--------------- Test Batch %d ---------------' % (idx + 1))
         print('loss: %.12f' % loss.item())
-        mean_loss += loss.item()
-        count += 1
+        print('acc: ', acc_batch)
+        acc += acc_batch * batch_size
+        mean_loss += loss.item() * batch_size
+        count += batch_size
 
     mean_loss = mean_loss / count
-    return mean_loss
+    acc = acc / count
+    return mean_loss, acc
 
 
 if __name__ == '__main__':
-    result = test_one_epoch()
+    loss, acc = test_one_epoch()
     print('--------------- Test Result ---------------')
-    print('test mean loss: %.12f' % result)
+    print('test mean loss: %.12f' % loss)
+    print('test mean acc: ', acc)
