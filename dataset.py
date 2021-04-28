@@ -9,7 +9,18 @@ import shutil
 
 
 class ProteinDataset(Dataset):
-    def __init__(self, feature_dir = 'data/feature', label_dir = 'data/label', train=False):
+    '''
+    Protein dataset
+    '''
+    def __init__(self, feature_dir, label_dir):
+        '''
+        Construct protein dataset
+
+        Parameters
+        ----------
+        feature_dir: the feature directory.
+        label_dir: the label directory.
+        '''
         self.label_dir = label_dir
         self.feature_dir = feature_dir
         self.proteins = os.listdir(self.label_dir)
@@ -30,7 +41,7 @@ class ProteinDataset(Dataset):
         label += np.where((dist >= 16) & (dist < 18), np.ones_like(label) * 7, np.zeros_like(label))
         label += np.where((dist >= 18) & (dist < 20), np.ones_like(label) * 8, np.zeros_like(label))
         label += np.where((dist >= 20), np.ones_like(label) * 9, np.zeros_like(label))
-        return feature, label, mask
+        return feature.astype(np.float32), label.astype(np.int), mask.astype(np.bool)
 
     def __len__(self):
         return len(self.proteins)
