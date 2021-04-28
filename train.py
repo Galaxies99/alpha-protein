@@ -106,33 +106,33 @@ def train(start_epoch):
         loss = eval_one_epoch()
         lr_scheduler.step()
         if MULTIGPU is False:
-            save_dict = {'epoch': epoch + 1, 'loss': loss.item(),
+            save_dict = {'epoch': epoch + 1, 'loss': loss,
                          'optimizer_state_dict': optimizer.state_dict(),
                          'model_state_dict': model.state_dict(),
                          'scheduler': lr_scheduler.state_dict()
                          }
         else:
-            save_dict = {'epoch': epoch + 1, 'loss': loss.item(),
+            save_dict = {'epoch': epoch + 1, 'loss': loss,
                          'optimizer_state_dict': optimizer.state_dict(),
                          'model_state_dict': model.module.state_dict(),
                          'scheduler': lr_scheduler.state_dict()
                          }
         torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint.tar'))
         torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint' + str(epoch) + '.tar'))
-        print('mean eval loss: %.12f' % loss.item())
+        print('mean eval loss: %.12f' % loss)
 
 
 def eval_one_epoch():
     model.eval()
     mean_loss = 0
     count = 0
-    for idx, data in enumerate(test_dataloader):
+    for idx, data in enumerate(val_dataloader):
         feature, label, mask = data
         feature = feature.to(device)
         label = label.to(device)
         mask = mask.to(device)
         with torch.no_grad():
-            res = model(feature)
+            result = model(feature)
         # Compute loss
         with torch.no_grad():
             loss = criterion(torch.masked_select(result, mask).reshape(10, -1).transpose(0, 1), torch.masked_select(label, mask))

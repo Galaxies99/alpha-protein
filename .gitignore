@@ -8,6 +8,7 @@ data/label/
 data/train/
 data/test/
 data/val/
+checkpoint/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
