@@ -6,11 +6,10 @@ import argparse
 import numpy as np
 from torch import optim
 from torch.optim import Adam
-import torch.nn as nn
-from torch.nn import CrossEntropyLoss
 from torch.utils.data import DataLoader
+from utils.loss import MaskedCrossEntropyLoss
 from torch.optim.lr_scheduler import MultiStepLR
-from dataset import ProteinDataset
+from dataset import ProteinDataset, collate_fn
 from models.SampleNet import SampleNet
 
 # Parse Arguments
@@ -35,10 +34,10 @@ GAMMA = cfg_dict.get('gamma', 0.1)
 
 # Load data & Build dataset
 train_dataset = ProteinDataset('data/train/feature', 'data/train/label')
-train_dataloader = DataLoader(train_dataset, batch_size = BATCH_SIZE, shuffle = True)
+train_dataloader = DataLoader(train_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn)
 
 val_dataset = ProteinDataset('data/val/feature', 'data/val/label')
-val_dataloader = DataLoader(val_dataset, batch_size = BATCH_SIZE, shuffle = True)
+val_dataloader = DataLoader(val_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn)
 
 # Build model from configs
 model = SampleNet(cfg_dict['network'])
@@ -55,7 +54,7 @@ else:
 optimizer = optim.Adam(model.parameters(), betas = (ADAM_BETA1, ADAM_BETA2), lr = LEARNING_RATE)
 
 # Define Criterion
-criterion = CrossEntropyLoss()
+criterion = MaskedCrossEntropyLoss()
 
 # Define Scheduler
 lr_scheduler = MultiStepLR(optimizer, milestones = MILESTONES, gamma = GAMMA)
@@ -71,7 +70,7 @@ if os.path.isfile(checkpoint_file):
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     start_epoch = checkpoint['epoch']
     lr_scheduler.load_state_dict(checkpoint['scheduler'])
-    print("Load checkpoint %s (epoch %d)", checkpoint_file, start_epoch)
+    print("Load checkpoint {} (epoch {})".format(checkpoint_file, start_epoch))
 
 if MULTIGPU is True:
     model = torch.nn.DataParallel(model)
@@ -88,7 +87,7 @@ def train_one_epoch():
         # Forward
         result = model(feature)
         # Backward
-        loss = criterion(torch.masked_select(result, mask).reshape(10, -1).transpose(0, 1), torch.masked_select(label, mask))
+        loss = criterion(result, label, mask)
         loss.backward()
         optimizer.step()
 
@@ -135,7 +134,7 @@ def eval_one_epoch():
             result = model(feature)
         # Compute loss
         with torch.no_grad():
-            loss = criterion(torch.masked_select(result, mask).reshape(10, -1).transpose(0, 1), torch.masked_select(label, mask))
+            loss = criterion(result, label, mask)
         print('--------------- Eval Batch %d ---------------' % (idx + 1))
         print('loss: %.12f' % loss.item())
         mean_loss += loss.item()

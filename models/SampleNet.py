@@ -4,6 +4,7 @@ import torch.nn.functional as F
 # This is just a sample net, for testing purpose.
 class SampleNet(nn.Module):
     def __init__(self, args):
+        super(SampleNet, self).__init__()
         in_channel = args['input_channel']
         out_channel = args['output_channel']
         super(SampleNet, self).__init__()
