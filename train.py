@@ -37,6 +37,7 @@ CHECKPOINT_DIR = cfg_dict.get('checkpoint_dir', 'checkpoint')
 NETWORK = cfg_dict.get('network', {})
 if "name" not in NETWORK.keys():
     NETWORK["name"] = "SampleNet"
+NETWORK_NAME = NETWORK["name"]
 
 # Load data & Build dataset
 train_dataset = ProteinDataset('data/train/feature', 'data/train/label')
@@ -46,15 +47,15 @@ val_dataset = ProteinDataset('data/val/feature', 'data/val/label')
 val_dataloader = DataLoader(val_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn)
 
 # Build model from configs
-if NETWORK["name"] == "SampleNet":
+if NETWORK_NAME == "SampleNet":
     model = SampleNet(NETWORK)
-elif NETWORK["name"] == "DeepCov":
+elif NETWORK_NAME == "DeepCov":
     model = DeepCov(NETWORK)
-elif NETWORK["name"] == "ResPRE":
+elif NETWORK_NAME == "ResPRE":
     model = ResPRE(NETWORK)
-elif NETWORK["name"] == "NLResPRE":
+elif NETWORK_NAME == "NLResPRE":
     model = NLResPRE(NETWORK)
-elif NETWORK["name"] == "GANcon":
+elif NETWORK_NAME == "GANcon":
     model = GANcon(NETWORK)
 else:
     raise AttributeError("Invalid Network.")
@@ -82,7 +83,7 @@ lr_scheduler = MultiStepLR(optimizer, milestones = MILESTONES, gamma = GAMMA)
 start_epoch = 0
 if os.path.exists(CHECKPOINT_DIR) == False:
     os.mkdir(CHECKPOINT_DIR)
-checkpoint_file = CHECKPOINT_DIR + '/checkpoint.tar'
+checkpoint_file = os.path.join(CHECKPOINT_DIR, 'checkpoint_{}'.format(NETWORK_NAME))
 if os.path.isfile(checkpoint_file):
     checkpoint = torch.load(checkpoint_file)
     model.load_state_dict(checkpoint['model_state_dict'])
@@ -135,8 +136,8 @@ def train(start_epoch):
                          'model_state_dict': model.module.state_dict(),
                          'scheduler': lr_scheduler.state_dict()
                          }
-        torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint.tar'))
-        torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint' + str(epoch) + '.tar'))
+        torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint_{}.tar'.format(NETWORK_NAME)))
+        torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint_{}_{}.tar'.format(NETWORK_NAME, epoch)))
         print('mean eval loss: %.12f' % loss)
 
 
