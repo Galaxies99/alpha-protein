@@ -3,10 +3,10 @@ import torch.nn.functional as F
 
 # This is just a sample net, for testing purpose.
 class SampleNet(nn.Module):
-    def __init__(self, args):
+    def __init__(self, args = {}):
         super(SampleNet, self).__init__()
-        in_channel = args['input_channel']
-        out_channel = args['output_channel']
+        in_channel = args.get('input_channel', 441)
+        out_channel = args.get('output_channel', 10)
         super(SampleNet, self).__init__()
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channel, 128, 1),

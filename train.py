@@ -11,14 +11,16 @@ from utils.loss import MaskedCrossEntropyLoss
 from torch.optim.lr_scheduler import MultiStepLR
 from dataset import ProteinDataset, collate_fn
 from models.SampleNet import SampleNet
+from models.DeepCov import DeepCov
+from models.ResPRE import ResPRE
+from models.NLResPRE import NLResPRE
+from models.GANcon import GANcon
 
 # Parse Arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--cfg', default = 'configs/default.yaml', help = 'Config File', type = str)
-parser.add_argument('--checkpoint', default = 'checkpoint', help = 'Checkpoint directory', type = str)
 FLAGS = parser.parse_args()
 CFG_FILE = FLAGS.cfg
-CHECKPOINT_DIR = FLAGS.checkpoint
 
 with open(CFG_FILE, 'r') as cfg_file:
     cfg_dict = yaml.load(cfg_file, Loader=yaml.FullLoader)
@@ -31,6 +33,10 @@ ADAM_BETA2 = cfg_dict.get('adam_beta2', 0.999)
 LEARNING_RATE = cfg_dict.get('learning_rate', 0.001)
 MILESTONES = cfg_dict.get('milestones', [int(MAX_EPOCH / 2)])
 GAMMA = cfg_dict.get('gamma', 0.1)
+CHECKPOINT_DIR = cfg_dict.get('checkpoint_dir', 'checkpoint')
+NETWORK = cfg_dict.get('network', {})
+if "name" not in NETWORK.keys():
+    NETWORK["name"] = "SampleNet"
 
 # Load data & Build dataset
 train_dataset = ProteinDataset('data/train/feature', 'data/train/label')
@@ -40,7 +46,20 @@ val_dataset = ProteinDataset('data/val/feature', 'data/val/label')
 val_dataloader = DataLoader(val_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn)
 
 # Build model from configs
-model = SampleNet(cfg_dict['network'])
+if NETWORK["name"] == "SampleNet":
+    model = SampleNet(NETWORK)
+elif NETWORK["name"] == "DeepCov":
+    model = DeepCov(NETWORK)
+elif NETWORK["name"] == "ResPRE":
+    model = ResPRE(NETWORK)
+elif NETWORK["name"] == "NLResPRE":
+    model = NLResPRE(NETWORK)
+elif NETWORK["name"] == "GANcon":
+    model = GANcon(NETWORK)
+else:
+    raise AttributeError("Invalid Network.")
+
+
 if MULTIGPU is False:
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     model.to(device)

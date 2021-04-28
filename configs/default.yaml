@@ -6,6 +6,8 @@ adam_beta2: 0.999
 learning_rate: 0.05
 milestones: [5, 10, 15, 20, 25, 30]
 gamma: 0.1
+checkpoint_dir: 'checkpoint'
 network:
+  name: 'SampleNet'
   input_channel: 441
   output_channel: 10
