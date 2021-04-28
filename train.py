@@ -41,7 +41,7 @@ val_dataset = ProteinDataset('data/val/feature', 'data/val/label')
 val_dataloader = DataLoader(val_dataset, batch_size = BATCH_SIZE, shuffle = True)
 
 # Build model from configs
-model = SampleNet()
+model = SampleNet(cfg_dict['network'])
 if MULTIGPU is False:
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     model.to(device)
