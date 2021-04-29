@@ -14,7 +14,6 @@ from models.SampleNet import SampleNet
 from models.DeepCov import DeepCov
 from models.ResPRE import ResPRE
 from models.NLResPRE import NLResPRE
-from models.GANcon import GANcon
 
 # Parse Arguments
 parser = argparse.ArgumentParser()
@@ -61,8 +60,6 @@ elif NETWORK_NAME == "ResPRE":
     model = ResPRE(NETWORK)
 elif NETWORK_NAME == "NLResPRE":
     model = NLResPRE(NETWORK)
-elif NETWORK_NAME == "GANcon":
-    model = GANcon(NETWORK)
 else:
     raise AttributeError("Invalid Network.")
 
