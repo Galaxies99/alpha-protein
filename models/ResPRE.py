@@ -33,7 +33,8 @@ class net_pre(nn.Module):
         return out
 
 class ResPRE(nn.Module):
-    def __init__(self, block=net_pre, args = {}):
+    # def __init__(self, block=net_pre, args = {}):
+    def __init__(self, args = {}):
         self.inplanes = 64
         in_channel = args.get('input_channel', 441)
         out_channel = args.get('output_channel', 10)
@@ -44,11 +45,13 @@ class ResPRE(nn.Module):
 
         layers = []
         for i in range(0, 22):
-            layers.append(block(self.inplanes, self.inplanes))
+            layers.append(net_pre(self.inplanes, self.inplanes))
 
         self.layer = nn.Sequential(*layers)
 
         self.lastlayer=nn.Conv2d(self.inplanes, 10, 3, padding=1, bias=False)
+
+        # self.sig = nn.Sigmoid()
 
     def forward(self, x):
         x = self.conv1(x)
@@ -57,7 +60,7 @@ class ResPRE(nn.Module):
 
         x = self.layer(x)
         x = self.lastlayer(x)
-        x = self.sig(x)
+        # x = self.sig(x)
 
         return x
 
