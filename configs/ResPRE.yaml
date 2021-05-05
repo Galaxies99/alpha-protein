@@ -12,3 +12,5 @@ network:
   name: 'ResPRE'
   input_channel: 441
   output_channel: 10
+  inplanes: 64
+  droprate: 0.2
