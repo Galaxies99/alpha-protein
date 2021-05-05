@@ -33,6 +33,7 @@ LEARNING_RATE = cfg_dict.get('learning_rate', 0.001)
 MILESTONES = cfg_dict.get('milestones', [int(MAX_EPOCH / 2)])
 GAMMA = cfg_dict.get('gamma', 0.1)
 CHECKPOINT_DIR = cfg_dict.get('checkpoint_dir', 'checkpoint')
+SOFTMAX = cfg_dict.get('softmax', True)
 NETWORK = cfg_dict.get('network', {})
 if "name" not in NETWORK.keys():
     NETWORK["name"] = "SampleNet"
@@ -77,7 +78,7 @@ else:
 optimizer = optim.Adam(model.parameters(), betas = (ADAM_BETA1, ADAM_BETA2), lr = LEARNING_RATE)
 
 # Define Criterion
-criterion = MaskedCrossEntropyLoss()
+criterion = MaskedCrossEntropyLoss(with_softmax = SOFTMAX)
 
 # Define Scheduler
 lr_scheduler = MultiStepLR(optimizer, milestones = MILESTONES, gamma = GAMMA)

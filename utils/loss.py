@@ -2,9 +2,12 @@ import torch
 import torch.nn as nn
 
 class MaskedCrossEntropyLoss(nn.Module):
-    def __init__(self):
+    def __init__(self, with_softmax = True):
         super(MaskedCrossEntropyLoss, self).__init__()
-        self.cross_entropy = nn.CrossEntropyLoss(reduction='none')
+        if with_softmax:
+            self.cross_entropy = nn.CrossEntropyLoss(reduction='none')
+        else:
+            self.cross_entropy = nn.NLLLoss(reduction='none')
 
     def forward(self, res, gt, mask):
         loss = self.cross_entropy(res, gt.long())

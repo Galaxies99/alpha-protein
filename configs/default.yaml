@@ -7,6 +7,7 @@ learning_rate: 0.05
 milestones: [5, 10, 15, 20, 25, 30]
 gamma: 0.1
 checkpoint_dir: 'checkpoint'
+softmax: True
 network:
   name: 'SampleNet'
   input_channel: 441
