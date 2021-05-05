@@ -25,11 +25,7 @@ class DeepCov(nn.Module):
             )
         self.interConvList = nn.ModuleList(self.interConvList)
 
-        self.OutConv = nn.Sequential(
-            nn.Conv2d(64, out_channel, kernel_size=(1, 1)),
-            nn.BatchNorm2d(10),
-            nn.Sigmoid()
-        )
+        self.OutConv = nn.Conv2d(64, out_channel, kernel_size=(1, 1))
 
     def forward(self, x):
         x = self.MaxOutConv(x)

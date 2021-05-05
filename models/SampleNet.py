@@ -33,10 +33,7 @@ class SampleNet(nn.Module):
             nn.BatchNorm2d(64),
             nn.ReLU()
         )
-        self.final = nn.Sequential(
-            nn.Conv2d(64, out_channel, 1),
-            nn.Sigmoid()
-        )
+        self.final = nn.Conv2d(64, out_channel, 1)
 
     def forward(self, x):
         y1 = self.conv1(x)
