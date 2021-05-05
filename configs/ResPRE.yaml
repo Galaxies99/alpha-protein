@@ -1,0 +1,16 @@
+batch_size: 1
+multigpu: False
+max_epoch: 30
+adam_beta1: 0.9
+adam_beta2: 0.999
+learning_rate: 0.05
+milestones: [5, 10, 15, 20, 25, 30]
+gamma: 0.1
+checkpoint_dir: 'checkpoint'
+softmax: True
+network:
+  name: 'ResPRE'
+  input_channel: 441
+  output_channel: 10
+  inplanes: 64
+  droprate: 0.2
