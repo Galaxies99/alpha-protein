@@ -40,7 +40,7 @@ if "name" not in NETWORK.keys():
 NETWORK_NAME = NETWORK["name"]
 
 # Load data & Build dataset
-TRAIN_DIR = os.path.join('data', 'test')
+TRAIN_DIR = os.path.join('data', 'train')
 TRAIN_FEATURE_DIR = os.path.join(TRAIN_DIR, 'feature')
 TRAIN_LABEL_DIR = os.path.join(TRAIN_DIR, 'label')
 train_dataset = ProteinDataset(TRAIN_FEATURE_DIR, TRAIN_LABEL_DIR)
