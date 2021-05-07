@@ -4,12 +4,15 @@ import torch.nn as nn
 class MaskedCrossEntropyLoss(nn.Module):
     def __init__(self, with_softmax = True):
         super(MaskedCrossEntropyLoss, self).__init__()
-        if with_softmax:
+        self.with_softmax = with_softmax
+        if self.with_softmax:
             self.cross_entropy = nn.CrossEntropyLoss(reduction='none')
         else:
             self.cross_entropy = nn.NLLLoss(reduction='none')
 
-    def forward(self, res, gt, mask):
+    def forward(self, res, gt, mask):        
+        if self.with_softmax is False:
+            res = torch.log(res)
         loss = self.cross_entropy(res, gt.long())
         loss = loss * mask
         sample_loss = loss.sum(dim = [1, 2]) / mask.sum(dim = [1, 2])
