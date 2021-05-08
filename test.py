@@ -63,7 +63,7 @@ if os.path.isfile(checkpoint_file):
 else:
     raise AttributeError('No checkpoint file!')
 
-
+# Data Parallelism
 if MULTIGPU is False:
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     model.to(device)
