@@ -40,7 +40,7 @@ if "name" not in NETWORK.keys():
 NETWORK_NAME = NETWORK["name"]
 
 # Load data & Build dataset
-TRAIN_DIR = os.path.join('data', 'test')
+TRAIN_DIR = os.path.join('data', 'train')
 TRAIN_FEATURE_DIR = os.path.join(TRAIN_DIR, 'feature')
 TRAIN_LABEL_DIR = os.path.join(TRAIN_DIR, 'label')
 train_dataset = ProteinDataset(TRAIN_FEATURE_DIR, TRAIN_LABEL_DIR)
@@ -64,16 +64,6 @@ elif NETWORK_NAME == "NLResPRE":
 else:
     raise AttributeError("Invalid Network.")
 
-
-if MULTIGPU is False:
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    model.to(device)
-else:
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    if device == torch.device('cpu'):
-        raise EnvironmentError('No GPUs, cannot initialize multigpu training.')
-    model.to(device)
-
 # Define optimizer
 optimizer = optim.Adam(model.parameters(), betas = (ADAM_BETA1, ADAM_BETA2), lr = LEARNING_RATE)
 
@@ -95,6 +85,16 @@ if os.path.isfile(checkpoint_file):
     start_epoch = checkpoint['epoch']
     lr_scheduler.load_state_dict(checkpoint['scheduler'])
     print("Load checkpoint {} (epoch {})".format(checkpoint_file, start_epoch))
+
+# Data Parallelism
+if MULTIGPU is False:
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    model.to(device)
+else:
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    if device == torch.device('cpu'):
+        raise EnvironmentError('No GPUs, cannot initialize multigpu training.')
+    model.to(device)
 
 if MULTIGPU is True:
     model = torch.nn.DataParallel(model)

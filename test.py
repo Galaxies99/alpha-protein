@@ -22,7 +22,7 @@ CFG_FILE = FLAGS.cfg
 
 with open(CFG_FILE, 'r') as cfg_file:
     cfg_dict = yaml.load(cfg_file, Loader=yaml.FullLoader)
-    
+
 BATCH_SIZE = cfg_dict.get('batch_size', 4)
 MULTIGPU = cfg_dict.get('multigpu', True)
 CHECKPOINT_DIR = cfg_dict.get('checkpoint_dir', 'checkpoint')
@@ -50,20 +50,8 @@ elif NETWORK_NAME == "NLResPRE":
 else:
     raise AttributeError("Invalid Network.")
 
-if MULTIGPU is False:
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    model.to(device)
-else:
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    if device == torch.device('cpu'):
-        raise EnvironmentError('No GPUs, cannot initialize multigpu training.')
-    model.to(device)
-
 # Define Criterion
 criterion = MaskedCrossEntropyLoss()
-
-if MULTIGPU is True:
-    model = torch.nn.DataParallel(model)
 
 # Read model from checkpoints
 checkpoint_file = os.path.join(CHECKPOINT_DIR, 'checkpoint_{}.tar'.format(NETWORK_NAME))
@@ -75,6 +63,18 @@ if os.path.isfile(checkpoint_file):
 else:
     raise AttributeError('No checkpoint file!')
 
+# Data Parallelism
+if MULTIGPU is False:
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    model.to(device)
+else:
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    if device == torch.device('cpu'):
+        raise EnvironmentError('No GPUs, cannot initialize multigpu training.')
+    model.to(device)
+
+if MULTIGPU is True:
+    model = torch.nn.DataParallel(model)
 
 def test_one_epoch():
     model.eval()
@@ -91,7 +91,7 @@ def test_one_epoch():
         # Compute loss
         with torch.no_grad():
             loss = criterion(result, label, mask)
-        acc_batch, batch_size = calc_batch_acc(label.numpy(), mask.numpy(), result.numpy())
+        acc_batch, batch_size = calc_batch_acc(label.cpu().numpy(), mask.cpu().numpy(), result.cpu().numpy())
         print('--------------- Test Batch %d ---------------' % (idx + 1))
         print('loss: %.12f' % loss.item())
         print('acc: ', acc_batch)
