@@ -121,6 +121,7 @@ def train_one_epoch():
 
 def train(start_epoch):
     global cur_epoch
+    min_loss = 1e18
     for epoch in range(start_epoch, MAX_EPOCH):
         cur_epoch = epoch
         print('**************** Epoch %d ****************' % (epoch + 1))
@@ -128,20 +129,25 @@ def train(start_epoch):
         train_one_epoch()
         loss = eval_one_epoch()
         lr_scheduler.step()
-        if MULTIGPU is False:
-            save_dict = {'epoch': epoch + 1, 'loss': loss,
-                         'optimizer_state_dict': optimizer.state_dict(),
-                         'model_state_dict': model.state_dict(),
-                         'scheduler': lr_scheduler.state_dict()
-                         }
-        else:
-            save_dict = {'epoch': epoch + 1, 'loss': loss,
-                         'optimizer_state_dict': optimizer.state_dict(),
-                         'model_state_dict': model.module.state_dict(),
-                         'scheduler': lr_scheduler.state_dict()
-                         }
-        torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint_{}.tar'.format(NETWORK_NAME)))
-        torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint_{}_{}.tar'.format(NETWORK_NAME, epoch)))
+        if loss < min_loss:
+            min_loss = loss
+            if MULTIGPU is False:
+                save_dict = {
+                    'epoch': epoch + 1, 
+                    'loss': loss,
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'model_state_dict': model.state_dict(),
+                    'scheduler': lr_scheduler.state_dict()
+                }
+            else:
+                save_dict = {
+                    'epoch': epoch + 1, 
+                    'loss': loss,
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'model_state_dict': model.module.state_dict(),
+                    'scheduler': lr_scheduler.state_dict()
+                }
+            torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint_{}.tar'.format(NETWORK_NAME)))
         print('mean eval loss: %.12f' % loss)
 
 
