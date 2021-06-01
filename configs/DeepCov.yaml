@@ -5,7 +5,7 @@ max_epoch: 50
 adam_beta1: 0.9
 adam_beta2: 0.999
 learning_rate: 0.05
-milestones: [10, 20, 30, 40]
+milestones: [15, 25, 35, 45]
 gamma: 0.2
 checkpoint_dir: 'checkpoint'
 temp_dir: 'temp'
