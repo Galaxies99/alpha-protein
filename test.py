@@ -46,7 +46,7 @@ TEST_DIR = os.path.join('data', 'test')
 TEST_FEATURE_DIR = os.path.join(TEST_DIR, 'feature')
 TEST_LABEL_DIR = os.path.join(TEST_DIR, 'label')
 test_dataset = ProteinDataset(TEST_FEATURE_DIR, TEST_LABEL_DIR, ZIPPED)
-test_dataloader = DataLoader(test_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn)
+test_dataloader = DataLoader(test_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn, num_workers = 16)
 
 # Build model from configs
 if NETWORK_NAME == "SampleNet":

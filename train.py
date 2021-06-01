@@ -52,13 +52,13 @@ TRAIN_DIR = os.path.join('data', 'train')
 TRAIN_FEATURE_DIR = os.path.join(TRAIN_DIR, 'feature')
 TRAIN_LABEL_DIR = os.path.join(TRAIN_DIR, 'label')
 train_dataset = ProteinDataset(TRAIN_FEATURE_DIR, TRAIN_LABEL_DIR, ZIPPED)
-train_dataloader = DataLoader(train_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn)
+train_dataloader = DataLoader(train_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn, num_workers = 16)
 
 VAL_DIR = os.path.join('data', 'val')
 VAL_FEATURE_DIR = os.path.join(VAL_DIR, 'feature')
 VAL_LABEL_DIR = os.path.join(VAL_DIR, 'label')
 val_dataset = ProteinDataset(VAL_FEATURE_DIR, VAL_LABEL_DIR, ZIPPED)
-val_dataloader = DataLoader(val_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn)
+val_dataloader = DataLoader(val_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn, num_workers = 16)
 
 # Build model from configs
 if NETWORK_NAME == "SampleNet":
