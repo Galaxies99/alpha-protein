@@ -3,9 +3,12 @@ import yaml
 import torch
 import random
 import argparse
+import logging
+import warnings
 import numpy as np
 from torch import optim
 from torch.utils.data import DataLoader
+from utils.logger import ColoredLogger
 from utils.loss import MaskedCrossEntropyLoss
 from utils.criterion import calc_batch_acc
 from dataset import ProteinDataset, collate_fn
@@ -13,6 +16,12 @@ from models.SampleNet import SampleNet
 from models.DeepCov import DeepCov
 from models.ResPRE import ResPRE
 from models.NLResPRE import NLResPRE
+
+
+logging.setLoggerClass(ColoredLogger)
+logger = logging.getLogger(__name__)
+warnings.filterwarnings("ignore")
+
 
 # Parse Arguments
 parser = argparse.ArgumentParser()
@@ -69,7 +78,7 @@ if os.path.isfile(checkpoint_file):
     checkpoint = torch.load(checkpoint_file)
     model.load_state_dict(checkpoint['model_state_dict'])
     start_epoch = checkpoint['epoch']
-    print("Load checkpoint {} (epoch {})".format(checkpoint_file, start_epoch))
+    logger.info("Checkpoint {} (epoch {}) loaded.".format(checkpoint_file, start_epoch))
 else:
     raise AttributeError('No checkpoint file!')
 
@@ -77,10 +86,12 @@ if MULTIGPU is True:
     model = torch.nn.DataParallel(model)
 
 def test_one_epoch():
+    logger.info('Start testing process ...')
     model.eval()
     mean_loss = 0
     count = 0
     acc = np.zeros((2, 4))
+    tot_batch = len(test_dataloader)
     for idx, data in enumerate(test_dataloader):
         feature, label, mask = data
         feature = feature.to(device)
@@ -92,20 +103,18 @@ def test_one_epoch():
         with torch.no_grad():
             loss = criterion(result, label, mask)
         acc_batch, batch_size = calc_batch_acc(label.cpu().numpy(), mask.cpu().numpy(), result.cpu().numpy())
-        print('--------------- Test Batch %d ---------------' % (idx + 1))
-        print('loss: %.12f' % loss.item())
-        print('acc: ', acc_batch)
+        logger.info('Test batch {}/{}, loss: {:.12f}'.format(idx + 1, tot_batch, loss.item()))
         acc += acc_batch * batch_size
         mean_loss += loss.item() * batch_size
         count += batch_size
 
     mean_loss = mean_loss / count
     acc = acc / count
+    logger.info('Finish testing process. Now calculating metrics ...')
+    logger.info('Mean evaluation loss: {:.12f}'.format(mean_loss))
+    logger.info('Mean acc: {}'.format(acc))
     return mean_loss, acc
 
 
 if __name__ == '__main__':
     loss, acc = test_one_epoch()
-    print('--------------- Test Result ---------------')
-    print('test mean loss: %.12f' % loss)
-    print('test mean acc: ', acc)
