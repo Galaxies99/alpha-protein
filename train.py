@@ -43,23 +43,27 @@ LEARNING_RATE = cfg_dict.get('learning_rate', 0.001)
 MILESTONES = cfg_dict.get('milestones', [int(MAX_EPOCH / 2)])
 GAMMA = cfg_dict.get('gamma', 0.1)
 CHECKPOINT_DIR = cfg_dict.get('checkpoint_dir', 'checkpoint')
+TEMP_DIR = cfg_dict.get('temp_dir', 'temp')
 SOFTMAX = cfg_dict.get('softmax', True)
 NETWORK = cfg_dict.get('network', {})
 if "name" not in NETWORK.keys():
     NETWORK["name"] = "SampleNet"
 NETWORK_NAME = NETWORK["name"]
+TEMP_PATH = os.path.join(TEMP_DIR, NETWORK_NAME)
+if os.path.exists(TEMP_PATH) is False:
+    os.makedirs(TEMP_PATH)
 
 # Load data & Build dataset
 TRAIN_DIR = os.path.join('data', 'train')
 TRAIN_FEATURE_DIR = os.path.join(TRAIN_DIR, 'feature')
 TRAIN_LABEL_DIR = os.path.join(TRAIN_DIR, 'label')
-train_dataset = ProteinDataset(TRAIN_FEATURE_DIR, TRAIN_LABEL_DIR, ZIPPED)
+train_dataset = ProteinDataset(TRAIN_FEATURE_DIR, TRAIN_LABEL_DIR, TEMP_PATH, ZIPPED)
 train_dataloader = DataLoader(train_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn, num_workers = 16)
 
 VAL_DIR = os.path.join('data', 'val')
 VAL_FEATURE_DIR = os.path.join(VAL_DIR, 'feature')
 VAL_LABEL_DIR = os.path.join(VAL_DIR, 'label')
-val_dataset = ProteinDataset(VAL_FEATURE_DIR, VAL_LABEL_DIR, ZIPPED)
+val_dataset = ProteinDataset(VAL_FEATURE_DIR, VAL_LABEL_DIR, TEMP_PATH, ZIPPED)
 val_dataloader = DataLoader(val_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn, num_workers = 16)
 
 # Build model from configs

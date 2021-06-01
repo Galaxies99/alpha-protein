@@ -9,6 +9,7 @@ milestones: [5, 10, 15, 20, 25, 30]
 gamma: 0.1
 softmax: True
 checkpoint_dir: 'checkpoint'
+temp_dir: 'temp'
 network:
   name: 'NLResPRE'
   input_channel: 441

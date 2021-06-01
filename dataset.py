@@ -12,7 +12,7 @@ class ProteinDataset(Dataset):
     '''
     Protein dataset
     '''
-    def __init__(self, feature_dir, label_dir, zipped):
+    def __init__(self, feature_dir, label_dir, temp_dir, zipped):
         '''
         Construct protein dataset
         Parameters
@@ -24,6 +24,10 @@ class ProteinDataset(Dataset):
         super(ProteinDataset, self).__init__()
         self.label_dir = label_dir
         self.feature_dir = feature_dir
+        self.temp_dir = temp_dir
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
+            os.makedirs(self.temp_dir)
         self.proteins = os.listdir(self.label_dir)
         self.zipped = zipped
 
@@ -50,22 +54,20 @@ class ProteinDataset(Dataset):
     def __len__(self):
         return len(self.proteins)
 
-    @staticmethod
-    def get_label(dir, name):
+    def get_label(self, dir, name):
         tmp_label = np.load(os.path.join(dir, name + ".npy"))
         return tmp_label
 
-    @staticmethod
-    def get_feature(dir, name, zipped = False):
+    def get_feature(self, dir, name, zipped = False):
         if zipped:
             name = os.path.join(dir, name + ".npy.gz")
-            f_name = name.replace(".npy.gz", "")
             g_file = tarfile.open(name)
-            g_file.extractall(f_name)
-            dir_ = os.listdir(f_name)
-            tmp_feature = np.load(os.path.join(f_name, dir_[0]))
+            extract_dir = os.path.join(self.temp_dir, name)
+            g_file.extractall(extract_dir)
+            file = os.listdir(extract_dir)
+            tmp_feature = np.load(os.path.join(extract_dir, file[0]))
             tmp_feature = np.transpose(tmp_feature, (2, 0, 1))
-            shutil.rmtree(f_name)
+            shutil.rmtree(extract_dir)
         else:
             name = os.path.join(dir, name + ".npy")
             tmp_feature = np.load(name)

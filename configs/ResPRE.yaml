@@ -1,6 +1,6 @@
 batch_size: 1
 zipped: True
-multigpu: False
+multigpu: True
 max_epoch: 30
 adam_beta1: 0.9
 adam_beta2: 0.999
@@ -8,6 +8,7 @@ learning_rate: 0.05
 milestones: [5, 10, 15, 20, 25, 30]
 gamma: 0.1
 checkpoint_dir: 'checkpoint'
+temp_dir: 'temp'
 softmax: True
 network:
   name: 'ResPRE'

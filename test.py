@@ -36,16 +36,20 @@ BATCH_SIZE = cfg_dict.get('batch_size', 4)
 ZIPPED = cfg_dict.get('zipped', True)
 MULTIGPU = cfg_dict.get('multigpu', True)
 CHECKPOINT_DIR = cfg_dict.get('checkpoint_dir', 'checkpoint')
+TEMP_DIR = cfg_dict.get('temp_dir', 'temp')
 NETWORK = cfg_dict.get('network', {})
 if "name" not in NETWORK.keys():
     NETWORK["name"] = "SampleNet"
 NETWORK_NAME = NETWORK["name"]
+TEMP_PATH = os.path.join(TEMP_DIR, NETWORK_NAME)
+if os.path.exists(TEMP_PATH) is False:
+    os.makedirs(TEMP_PATH)
 
 # Load data & Build dataset
 TEST_DIR = os.path.join('data', 'test')
 TEST_FEATURE_DIR = os.path.join(TEST_DIR, 'feature')
 TEST_LABEL_DIR = os.path.join(TEST_DIR, 'label')
-test_dataset = ProteinDataset(TEST_FEATURE_DIR, TEST_LABEL_DIR, ZIPPED)
+test_dataset = ProteinDataset(TEST_FEATURE_DIR, TEST_LABEL_DIR, TEMP_PATH, ZIPPED)
 test_dataloader = DataLoader(test_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn, num_workers = 16)
 
 # Build model from configs
