@@ -42,7 +42,9 @@ class ProteinDataset(Dataset):
         label += np.where((dist >= 16) & (dist < 18), np.ones_like(label) * 7, np.zeros_like(label))
         label += np.where((dist >= 18) & (dist < 20), np.ones_like(label) * 8, np.zeros_like(label))
         label += np.where((dist >= 20), np.ones_like(label) * 9, np.zeros_like(label))
-        return feature.astype(np.float32), label.astype(np.int), mask.astype(np.bool)
+        return torch.from_numpy(feature.astype(np.float)), \
+               torch.from_numpy(label.astype(np.int)), \
+               torch.from_numpy(mask.astype(np.bool))
 
     def __len__(self):
         return len(self.proteins)
@@ -69,9 +71,9 @@ def collate_fn(data):
     batch_size = len(data)
     channel_size = data[0][0].shape[0]
 
-    features = np.zeros((batch_size, channel_size, max_m, max_m)).astype(np.float32)
-    labels = np.zeros((batch_size, max_m, max_m)).astype(np.int)
-    masks = np.zeros((batch_size, max_m, max_m)).astype(np.bool)
+    features = torch.zeros((batch_size, channel_size, max_m, max_m), dtype = torch.float32)
+    labels = torch.zeros((batch_size, max_m, max_m), dtype = torch.int64)
+    masks = torch.zeros((batch_size, max_m, max_m), dtype = torch.bool)
     for i, piece_data in enumerate(data):
         feature, label, mask = piece_data
         m = feature.shape[1]
@@ -79,4 +81,4 @@ def collate_fn(data):
         labels[i, 0:m, 0:m] = label
         masks[i, 0:m, 0:m] = mask
     
-    return torch.from_numpy(features), torch.from_numpy(labels), torch.from_numpy(masks)
+    return features, labels, masks
