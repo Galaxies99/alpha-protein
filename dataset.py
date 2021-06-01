@@ -15,7 +15,6 @@ class ProteinDataset(Dataset):
     def __init__(self, feature_dir, label_dir):
         '''
         Construct protein dataset
-
         Parameters
         ----------
         feature_dir: the feature directory.
@@ -30,7 +29,7 @@ class ProteinDataset(Dataset):
         prot_name = self.proteins[index]
         prot_name = prot_name[:prot_name.find('.')]
         dist = self.get_label(os.path.join(self.label_dir, prot_name + '.npy'))
-        feature = self.get_feature(os.path.join(self.feature_dir, prot_name + '.npy.gz'))
+        feature = self.get_feature(os.path.join(self.feature_dir, prot_name + '.npy'))
         mask = np.where(dist == -1, 0, 1)
         label = np.zeros(dist.shape)
         label += np.where((dist >= 4) & (dist < 6), np.ones_like(label), np.zeros_like(label))
@@ -49,19 +48,14 @@ class ProteinDataset(Dataset):
     def __len__(self):
         return len(self.proteins)
 
-    def get_label(self, name):
+    @staticmethod
+    def get_label(name):
         tmp_label = np.load(name)
         return tmp_label
 
     @staticmethod
     def get_feature(name):
-        f_name = name.replace(".npy.gz", "")
-        g_file = tarfile.open(name)
-        g_file.extractall(f_name)
-        dir_ = os.listdir(f_name)
-        tmp_feature = np.load(os.path.join(f_name, dir_[0]))
-        tmp_feature = np.transpose(tmp_feature, (2, 0, 1))
-        shutil.rmtree(f_name)
+        tmp_feature = np.load(name)
         return tmp_feature
 
 
