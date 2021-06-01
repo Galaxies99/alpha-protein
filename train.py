@@ -3,17 +3,24 @@ import yaml
 import torch
 import random
 import argparse
+import logging
 import numpy as np
 from torch import optim
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 from utils.loss import MaskedCrossEntropyLoss
+from utils.logger import ColoredLogger
 from torch.optim.lr_scheduler import MultiStepLR
 from dataset import ProteinDataset, collate_fn
 from models.SampleNet import SampleNet
 from models.DeepCov import DeepCov
 from models.ResPRE import ResPRE
 from models.NLResPRE import NLResPRE
+
+
+logging.setLoggerClass(ColoredLogger)
+logger = logging.getLogger(__name__)
+
 
 # Parse Arguments
 parser = argparse.ArgumentParser()
@@ -64,6 +71,16 @@ elif NETWORK_NAME == "NLResPRE":
 else:
     raise AttributeError("Invalid Network.")
 
+# Data Parallelism
+if MULTIGPU is False:
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    model.to(device)
+else:
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    if device == torch.device('cpu'):
+        raise EnvironmentError('No GPUs, cannot initialize multigpu training.')
+    model.to(device)
+
 # Define optimizer
 optimizer = optim.Adam(model.parameters(), betas = (ADAM_BETA1, ADAM_BETA2), lr = LEARNING_RATE)
 
@@ -84,24 +101,16 @@ if os.path.isfile(checkpoint_file):
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     start_epoch = checkpoint['epoch']
     lr_scheduler.load_state_dict(checkpoint['scheduler'])
-    print("Load checkpoint {} (epoch {})".format(checkpoint_file, start_epoch))
-
-# Data Parallelism
-if MULTIGPU is False:
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    model.to(device)
-else:
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    if device == torch.device('cpu'):
-        raise EnvironmentError('No GPUs, cannot initialize multigpu training.')
-    model.to(device)
+    logger.info("Checkpoint {} (epoch {}) loaded.".format(checkpoint_file, start_epoch))
 
 if MULTIGPU is True:
     model = torch.nn.DataParallel(model)
 
 
-def train_one_epoch():
+def train_one_epoch(epoch):
+    logger.info('Start training process in epoch {}.'.format(epoch + 1))
     model.train()
+    tot_batch = len(train_dataloader)
     for idx, data in enumerate(train_dataloader):
         optimizer.zero_grad()
         feature, label, mask = data
@@ -114,41 +123,16 @@ def train_one_epoch():
         loss = criterion(result, label, mask)
         loss.backward()
         optimizer.step()
-
-        print('--------------- Train Batch %d ---------------' % (idx + 1))
-        print('loss: %.12f' % loss.item())
-
-
-def train(start_epoch):
-    global cur_epoch
-    for epoch in range(start_epoch, MAX_EPOCH):
-        cur_epoch = epoch
-        print('**************** Epoch %d ****************' % (epoch + 1))
-        print('learning rate: %f' % (lr_scheduler.get_last_lr()[0]))
-        train_one_epoch()
-        loss = eval_one_epoch()
-        lr_scheduler.step()
-        if MULTIGPU is False:
-            save_dict = {'epoch': epoch + 1, 'loss': loss,
-                         'optimizer_state_dict': optimizer.state_dict(),
-                         'model_state_dict': model.state_dict(),
-                         'scheduler': lr_scheduler.state_dict()
-                         }
-        else:
-            save_dict = {'epoch': epoch + 1, 'loss': loss,
-                         'optimizer_state_dict': optimizer.state_dict(),
-                         'model_state_dict': model.module.state_dict(),
-                         'scheduler': lr_scheduler.state_dict()
-                         }
-        torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint_{}.tar'.format(NETWORK_NAME)))
-        torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint_{}_{}.tar'.format(NETWORK_NAME, epoch)))
-        print('mean eval loss: %.12f' % loss)
+        logger.info('Train epoch {}/{} batch {}/{}, loss: {:.6f}'.format(epoch + 1, MAX_EPOCH, idx + 1, tot_batch, loss.item()))
+    logger.info('Finish training process in epoch {}.'.format(epoch + 1))
 
 
-def eval_one_epoch():
+def eval_one_epoch(epoch):
+    logger.info('Start evaluation process in epoch {}.'.format(epoch + 1))
     model.eval()
     mean_loss = 0
     count = 0
+    tot_batch = len(val_dataloader)
     for idx, data in enumerate(val_dataloader):
         feature, label, mask = data
         feature = feature.to(device)
@@ -159,13 +143,43 @@ def eval_one_epoch():
         # Compute loss
         with torch.no_grad():
             loss = criterion(result, label, mask)
-        print('--------------- Eval Batch %d ---------------' % (idx + 1))
-        print('loss: %.12f' % loss.item())
+        logger.info('Train epoch {}/{} batch {}/{}, loss: {:.12f}'.format(epoch + 1, MAX_EPOCH, idx + 1, tot_batch, loss.item()))
         mean_loss += loss.item()
         count += 1
-
     mean_loss = mean_loss / count
+    logger.info('Finish evaluation process in epoch {}. Mean evaluation loss: {:.12f}'.format(epoch + 1, mean_loss))
     return mean_loss
+
+
+def train(start_epoch):
+    global cur_epoch
+    min_loss = 1e18
+    for epoch in range(start_epoch, MAX_EPOCH):
+        cur_epoch = epoch
+        logger.info('--> Epoch {}/{}, learning rate: {}'.format(epoch + 1, MAX_EPOCH, lr_scheduler.get_last_lr()[0]))
+        train_one_epoch(epoch)
+        loss = eval_one_epoch(epoch)
+        lr_scheduler.step()
+        if MULTIGPU is False:
+            save_dict = {
+                'epoch': epoch + 1, 
+                'loss': loss,
+                'optimizer_state_dict': optimizer.state_dict(),
+                'model_state_dict': model.state_dict(),
+                'scheduler': lr_scheduler.state_dict()
+            }
+        else:
+            save_dict = {
+                'epoch': epoch + 1, 
+                'loss': loss,
+                'optimizer_state_dict': optimizer.state_dict(),
+                'model_state_dict': model.module.state_dict(),
+                'scheduler': lr_scheduler.state_dict()
+            }
+        torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint_{}_{}.tar'.format(NETWORK_NAME, epoch)))
+        if loss < min_loss:
+            min_loss = loss
+            torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint_{}.tar'.format(NETWORK_NAME)))
 
 
 if __name__ == '__main__':

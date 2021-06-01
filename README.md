@@ -1,3 +1,5 @@
+![](imgs/alpha-protein.png)
+
 # Alpha-Protein: Protein Contact-map Prediction Networks Implementations in PyTorch
 
 This is the official repository of alpha-protein, protein contact-map networks implementations in PyTorch framework. In the repository, we implement 3 main algorithm: DeepCov[1], ResPRE[2] and our proposed NLResPRE (non-local ResPRE).
