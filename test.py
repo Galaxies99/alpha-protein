@@ -103,7 +103,7 @@ def test_one_epoch():
         # Compute loss
         with torch.no_grad():
             loss = criterion(result, label, mask)
-        acc_batch, batch_size = calc_batch_acc(label.cpu().numpy(), mask.cpu().numpy(), result.cpu().numpy())
+        acc_batch, batch_size = calc_batch_acc(label.cpu().detach().numpy(), mask.cpu().detach().numpy(), result.cpu().detach().numpy())
         logger.info('Test batch {}/{}, loss: {:.12f}'.format(idx + 1, tot_batch, loss.item()))
         acc += acc_batch * batch_size
         mean_loss += loss.item() * batch_size

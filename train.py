@@ -1,7 +1,7 @@
 import os
 import yaml
 import torch
-import random
+import warnings
 import argparse
 import logging
 import numpy as np
@@ -10,6 +10,7 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader
 from utils.loss import MaskedCrossEntropyLoss
 from utils.logger import ColoredLogger
+from utils.criterion import calc_batch_acc, calc_score
 from torch.optim.lr_scheduler import MultiStepLR
 from dataset import ProteinDataset, collate_fn
 from models.SampleNet import SampleNet
@@ -20,6 +21,7 @@ from models.NLResPRE import NLResPRE
 
 logging.setLoggerClass(ColoredLogger)
 logger = logging.getLogger(__name__)
+warnings.filterwarnings("ignore")
 
 
 # Parse Arguments
@@ -133,6 +135,7 @@ def eval_one_epoch(epoch):
     model.eval()
     mean_loss = 0
     count = 0
+    acc = np.zeros((2, 4))
     tot_batch = len(val_dataloader)
     for idx, data in enumerate(val_dataloader):
         feature, label, mask = data
@@ -144,11 +147,18 @@ def eval_one_epoch(epoch):
         # Compute loss
         with torch.no_grad():
             loss = criterion(result, label, mask)
+        acc_batch, batch_size = calc_batch_acc(label.cpu().detach().numpy(), mask.cpu().detach().numpy(), result.cpu().detach().numpy())
         logger.info('Train epoch {}/{} batch {}/{}, loss: {:.12f}'.format(epoch + 1, MAX_EPOCH, idx + 1, tot_batch, loss.item()))
         mean_loss += loss.item()
-        count += 1
+        acc += acc_batch * batch_size
+        mean_loss += loss.item() * batch_size
+        count += batch_size
     mean_loss = mean_loss / count
-    logger.info('Finish evaluation process in epoch {}. Mean evaluation loss: {:.12f}'.format(epoch + 1, mean_loss))
+    acc = acc / count
+    logger.info('Finish evaluation process in epoch {}. Now calculating metrics ...')
+    logger.info('Mean evaluation loss: {:.12f}'.format(mean_loss))
+    logger.info('Mean acc: {}'.format(acc))
+    logger.info('Score: {:.6f}'.format(calc_score(acc)))
     return mean_loss
 
 
