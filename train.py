@@ -152,7 +152,7 @@ def eval_one_epoch(epoch):
         with torch.no_grad():
             loss = criterion(result, label, mask)
         acc_batch, batch_size = calc_batch_acc(label.cpu().detach().numpy(), mask.cpu().detach().numpy(), result.cpu().detach().numpy())
-        logger.info('Train epoch {}/{} batch {}/{}, loss: {:.12f}'.format(epoch + 1, MAX_EPOCH, idx + 1, tot_batch, loss.item()))
+        logger.info('Eval epoch {}/{} batch {}/{}, loss: {:.12f}'.format(epoch + 1, MAX_EPOCH, idx + 1, tot_batch, loss.item()))
         mean_loss += loss.item()
         acc += acc_batch * batch_size
         mean_loss += loss.item() * batch_size
