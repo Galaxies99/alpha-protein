@@ -10,7 +10,7 @@ from torch import optim
 from torch.utils.data import DataLoader
 from utils.logger import ColoredLogger
 from utils.loss import MaskedCrossEntropyLoss
-from utils.criterion import calc_batch_acc
+from utils.criterion import calc_batch_acc, calc_score
 from dataset import ProteinDataset, collate_fn
 from models.SampleNet import SampleNet
 from models.DeepCov import DeepCov
@@ -113,6 +113,7 @@ def test_one_epoch():
     logger.info('Finish testing process. Now calculating metrics ...')
     logger.info('Mean evaluation loss: {:.12f}'.format(mean_loss))
     logger.info('Mean acc: {}'.format(acc))
+    logger.info('Score: {:.6f}'.format(calc_score(acc)))
     return mean_loss, acc
 
 
