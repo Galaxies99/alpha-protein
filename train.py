@@ -160,24 +160,25 @@ def train(start_epoch):
         train_one_epoch(epoch)
         loss = eval_one_epoch(epoch)
         lr_scheduler.step()
+        if MULTIGPU is False:
+            save_dict = {
+                'epoch': epoch + 1, 
+                'loss': loss,
+                'optimizer_state_dict': optimizer.state_dict(),
+                'model_state_dict': model.state_dict(),
+                'scheduler': lr_scheduler.state_dict()
+            }
+        else:
+            save_dict = {
+                'epoch': epoch + 1, 
+                'loss': loss,
+                'optimizer_state_dict': optimizer.state_dict(),
+                'model_state_dict': model.module.state_dict(),
+                'scheduler': lr_scheduler.state_dict()
+            }
+        torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint_{}_{}.tar'.format(NETWORK_NAME, epoch)))
         if loss < min_loss:
             min_loss = loss
-            if MULTIGPU is False:
-                save_dict = {
-                    'epoch': epoch + 1, 
-                    'loss': loss,
-                    'optimizer_state_dict': optimizer.state_dict(),
-                    'model_state_dict': model.state_dict(),
-                    'scheduler': lr_scheduler.state_dict()
-                }
-            else:
-                save_dict = {
-                    'epoch': epoch + 1, 
-                    'loss': loss,
-                    'optimizer_state_dict': optimizer.state_dict(),
-                    'model_state_dict': model.module.state_dict(),
-                    'scheduler': lr_scheduler.state_dict()
-                }
             torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint_{}.tar'.format(NETWORK_NAME)))
 
 
