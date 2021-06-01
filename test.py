@@ -33,6 +33,7 @@ with open(CFG_FILE, 'r') as cfg_file:
     cfg_dict = yaml.load(cfg_file, Loader=yaml.FullLoader)
 
 BATCH_SIZE = cfg_dict.get('batch_size', 4)
+ZIPPED = cfg_dict.get('zipped', True)
 MULTIGPU = cfg_dict.get('multigpu', True)
 CHECKPOINT_DIR = cfg_dict.get('checkpoint_dir', 'checkpoint')
 NETWORK = cfg_dict.get('network', {})
@@ -44,7 +45,7 @@ NETWORK_NAME = NETWORK["name"]
 TEST_DIR = os.path.join('data', 'test')
 TEST_FEATURE_DIR = os.path.join(TEST_DIR, 'feature')
 TEST_LABEL_DIR = os.path.join(TEST_DIR, 'label')
-test_dataset = ProteinDataset(TEST_FEATURE_DIR, TEST_LABEL_DIR)
+test_dataset = ProteinDataset(TEST_FEATURE_DIR, TEST_LABEL_DIR, ZIPPED)
 test_dataloader = DataLoader(test_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn)
 
 # Build model from configs

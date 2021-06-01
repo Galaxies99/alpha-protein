@@ -1,4 +1,5 @@
 batch_size: 4
+zipped: True
 multigpu: False
 max_epoch: 30
 adam_beta1: 0.9

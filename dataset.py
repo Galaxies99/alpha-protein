@@ -12,24 +12,26 @@ class ProteinDataset(Dataset):
     '''
     Protein dataset
     '''
-    def __init__(self, feature_dir, label_dir):
+    def __init__(self, feature_dir, label_dir, zipped):
         '''
         Construct protein dataset
         Parameters
         ----------
-        feature_dir: the feature directory.
-        label_dir: the label directory.
+        feature_dir: the feature directory;
+        label_dir: the label directory;
+        zipped: whether the data is zipped.
         '''
         super(ProteinDataset, self).__init__()
         self.label_dir = label_dir
         self.feature_dir = feature_dir
         self.proteins = os.listdir(self.label_dir)
+        self.zipped = zipped
 
     def __getitem__(self, index):
         prot_name = self.proteins[index]
         prot_name = prot_name[:prot_name.find('.')]
-        dist = self.get_label(os.path.join(self.label_dir, prot_name + '.npy'))
-        feature = self.get_feature(os.path.join(self.feature_dir, prot_name + '.npy'))
+        dist = self.get_label(self.label_dir, prot_name)
+        feature = self.get_feature(self.feature_dir, prot_name, self.zipped)
         mask = np.where(dist == -1, 0, 1)
         label = np.zeros(dist.shape)
         label += np.where((dist >= 4) & (dist < 6), np.ones_like(label), np.zeros_like(label))
@@ -49,13 +51,24 @@ class ProteinDataset(Dataset):
         return len(self.proteins)
 
     @staticmethod
-    def get_label(name):
-        tmp_label = np.load(name)
+    def get_label(dir, name):
+        tmp_label = np.load(os.path.join(dir, name + ".npy"))
         return tmp_label
 
     @staticmethod
-    def get_feature(name):
-        tmp_feature = np.load(name)
+    def get_feature(dir, name, zipped = False):
+        if zipped:
+            name = os.path.join(dir, name + ".npy.gz")
+            f_name = name.replace(".npy.gz", "")
+            g_file = tarfile.open(name)
+            g_file.extractall(f_name)
+            dir_ = os.listdir(f_name)
+            tmp_feature = np.load(os.path.join(f_name, dir_[0]))
+            tmp_feature = np.transpose(tmp_feature, (2, 0, 1))
+            shutil.rmtree(f_name)
+        else:
+            name = os.path.join(dir, name + ".npy")
+            tmp_feature = np.load(name)
         return tmp_feature
 
 

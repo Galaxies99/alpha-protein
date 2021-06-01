@@ -32,6 +32,7 @@ with open(CFG_FILE, 'r') as cfg_file:
     cfg_dict = yaml.load(cfg_file, Loader=yaml.FullLoader)
     
 BATCH_SIZE = cfg_dict.get('batch_size', 4)
+ZIPPED = cfg_dict.get('zipped', True)
 MULTIGPU = cfg_dict.get('multigpu', True)
 MAX_EPOCH = cfg_dict.get('max_epoch', 30)
 ADAM_BETA1 = cfg_dict.get('adam_beta1', 0.9)
@@ -50,13 +51,13 @@ NETWORK_NAME = NETWORK["name"]
 TRAIN_DIR = os.path.join('data', 'train')
 TRAIN_FEATURE_DIR = os.path.join(TRAIN_DIR, 'feature')
 TRAIN_LABEL_DIR = os.path.join(TRAIN_DIR, 'label')
-train_dataset = ProteinDataset(TRAIN_FEATURE_DIR, TRAIN_LABEL_DIR)
+train_dataset = ProteinDataset(TRAIN_FEATURE_DIR, TRAIN_LABEL_DIR, ZIPPED)
 train_dataloader = DataLoader(train_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn)
 
 VAL_DIR = os.path.join('data', 'val')
 VAL_FEATURE_DIR = os.path.join(VAL_DIR, 'feature')
 VAL_LABEL_DIR = os.path.join(VAL_DIR, 'label')
-val_dataset = ProteinDataset(VAL_FEATURE_DIR, VAL_LABEL_DIR)
+val_dataset = ProteinDataset(VAL_FEATURE_DIR, VAL_LABEL_DIR, ZIPPED)
 val_dataloader = DataLoader(val_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn)
 
 # Build model from configs
