@@ -105,9 +105,8 @@ checkpoint_file = os.path.join(CHECKPOINT_DIR, 'checkpoint_{}.tar'.format(NETWOR
 if os.path.isfile(checkpoint_file):
     checkpoint = torch.load(checkpoint_file)
     model.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     start_epoch = checkpoint['epoch']
-    lr_scheduler.load_state_dict(checkpoint['scheduler'])
+    lr_scheduler.last_epoch = start_epoch - 1
     logger.info("Checkpoint {} (epoch {}) loaded.".format(checkpoint_file, start_epoch))
 
 if MULTIGPU is True:
@@ -130,7 +129,7 @@ def train_one_epoch(epoch):
         loss = criterion(result, label, mask)
         loss.backward()
         optimizer.step()
-        logger.info('Train epoch {}/{} batch {}/{}, loss: {:.6f}'.format(epoch + 1, MAX_EPOCH, idx + 1, tot_batch, loss.item()))
+        logger.info('Train epoch {}/{} batch {}/{}, loss: {:.12f}'.format(epoch + 1, MAX_EPOCH, idx + 1, tot_batch, loss.item()))
     logger.info('Finish training process in epoch {}.'.format(epoch + 1))
 
 
