@@ -6,6 +6,8 @@ import argparse
 import logging
 import warnings
 import numpy as np
+import torch.nn as nn
+import torch.nn.functional as F
 from torch import optim
 from torch.utils.data import DataLoader
 from utils.logger import ColoredLogger
@@ -107,6 +109,7 @@ def test_one_epoch():
         # Compute loss
         with torch.no_grad():
             loss = criterion(result, label, mask)
+        result = F.softmax(result, dim = 1)
         acc_batch, batch_size = calc_batch_acc(label.cpu().detach().numpy(), mask.cpu().detach().numpy(), result.cpu().detach().numpy())
         logger.info('Test batch {}/{}, loss: {:.12f}'.format(idx + 1, tot_batch, loss.item()))
         acc += acc_batch * batch_size

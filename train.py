@@ -5,8 +5,10 @@ import warnings
 import argparse
 import logging
 import numpy as np
+import torch.nn as nn
+import torch.nn.functional as F
 from torch import optim
-from torch.optim import Adam
+from torch.optim import AdamW
 from torch.utils.data import DataLoader
 from utils.loss import MaskedCrossEntropyLoss
 from utils.logger import ColoredLogger
@@ -39,6 +41,8 @@ MULTIGPU = cfg_dict.get('multigpu', True)
 MAX_EPOCH = cfg_dict.get('max_epoch', 30)
 ADAM_BETA1 = cfg_dict.get('adam_beta1', 0.9)
 ADAM_BETA2 = cfg_dict.get('adam_beta2', 0.999)
+ADAM_WEIGHT_DECAY = cfg_dict.get('adam_weight_decay', 0.01)
+ADAM_EPS = cfg_dict.get('adam_eps', 1e-6)
 LEARNING_RATE = cfg_dict.get('learning_rate', 0.001)
 MILESTONES = cfg_dict.get('milestones', [int(MAX_EPOCH / 2)])
 GAMMA = cfg_dict.get('gamma', 0.1)
@@ -89,7 +93,7 @@ else:
     model.to(device)
 
 # Define optimizer
-optimizer = optim.Adam(model.parameters(), betas = (ADAM_BETA1, ADAM_BETA2), lr = LEARNING_RATE)
+optimizer = optim.AdamW(model.parameters(), betas = (ADAM_BETA1, ADAM_BETA2), lr = LEARNING_RATE, weight_decay = ADAM_WEIGHT_DECAY, eps = ADAM_EPS)
 
 # Define Criterion
 criterion = MaskedCrossEntropyLoss(with_softmax = SOFTMAX)
@@ -150,6 +154,7 @@ def eval_one_epoch(epoch):
         # Compute loss
         with torch.no_grad():
             loss = criterion(result, label, mask)
+        result = F.softmax(result, dim = 1)
         acc_batch, batch_size = calc_batch_acc(label.cpu().detach().numpy(), mask.cpu().detach().numpy(), result.cpu().detach().numpy())
         logger.info('Eval epoch {}/{} batch {}/{}, loss: {:.12f}'.format(epoch + 1, MAX_EPOCH, idx + 1, tot_batch, loss.item()))
         mean_loss += loss.item()
@@ -158,21 +163,22 @@ def eval_one_epoch(epoch):
         count += batch_size
     mean_loss = mean_loss / count
     acc = acc / count
+    score = calc_score(acc)
     logger.info('Finish evaluation process in epoch {}. Now calculating metrics ...')
     logger.info('Mean evaluation loss: {:.12f}'.format(mean_loss))
     logger.info('Mean acc: {}'.format(acc))
-    logger.info('Score: {:.6f}'.format(calc_score(acc)))
-    return mean_loss
+    logger.info('Score: {:.6f}'.format(score))
+    return mean_loss, score
 
 
 def train(start_epoch):
     global cur_epoch
-    min_loss = 1e18
+    max_score = 0
     for epoch in range(start_epoch, MAX_EPOCH):
         cur_epoch = epoch
         logger.info('--> Epoch {}/{}, learning rate: {}'.format(epoch + 1, MAX_EPOCH, lr_scheduler.get_last_lr()[0]))
         train_one_epoch(epoch)
-        loss = eval_one_epoch(epoch)
+        loss, score = eval_one_epoch(epoch)
         lr_scheduler.step()
         if MULTIGPU is False:
             save_dict = {
@@ -191,8 +197,8 @@ def train(start_epoch):
                 'scheduler': lr_scheduler.state_dict()
             }
         torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint_{}_{}.tar'.format(NETWORK_NAME, epoch)))
-        if loss < min_loss:
-            min_loss = loss
+        if score > max_score:
+            max_score = score
             torch.save(save_dict, os.path.join(CHECKPOINT_DIR, 'checkpoint_{}.tar'.format(NETWORK_NAME)))
 
 
