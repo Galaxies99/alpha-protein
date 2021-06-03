@@ -32,7 +32,7 @@ warnings.filterwarnings("ignore")
 # Parse Arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--cfg', default = os.path.join('configs', 'default.yaml'), help = 'Config File', type = str)
-parser.add_argument('--clean_cache', default = True, help = 'whether to clean the cache of GPU while training, evaluation and testing', type = bool)
+parser.add_argument('--clean_cache', action = 'store_true', help = 'whether to clean the cache of GPU while training, evaluation and testing')
 FLAGS = parser.parse_args()
 CFG_FILE = FLAGS.cfg
 CLEAN_CACHE = FLAGS.clean_cache
