@@ -16,3 +16,5 @@ network:
   name: 'DeepCov'
   input_channel: 441
   output_channel: 10
+  hidden_channel: 64
+  blocks: 10

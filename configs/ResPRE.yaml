@@ -18,3 +18,4 @@ network:
   output_channel: 10
   inplanes: 64
   droprate: 0.2
+  blocks: 22
