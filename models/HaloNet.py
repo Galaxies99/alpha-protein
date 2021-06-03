@@ -196,7 +196,7 @@ class HaloNet(nn.Module):
         super(HaloNet, self).__init__()
         in_channel, out_channel = args.get('input_channel', 441), args.get('out_channel', 10)
         intermediate_channel = args.get('intermediate_channel', 64)
-        blocks = args.get('blocks', 22)
+        blocks = args.get('blocks', 3)
         block_size = args.get('block_size', 8)
         halo_size = args.get('halo_size', 4)
         dim_head = args.get('dim_head', 16)
