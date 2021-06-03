@@ -74,20 +74,26 @@ class ProteinDataset(Dataset):
         return tmp_feature
 
 
-def collate_fn(data):
-    assert len(data) > 0
-    max_m = np.max([x.shape[1] for (x, _, _) in data])
-    batch_size = len(data)
-    channel_size = data[0][0].shape[0]
-
-    features = torch.zeros((batch_size, channel_size, max_m, max_m), dtype = torch.float32)
-    labels = torch.zeros((batch_size, max_m, max_m), dtype = torch.int64)
-    masks = torch.zeros((batch_size, max_m, max_m), dtype = torch.bool)
-    for i, piece_data in enumerate(data):
-        feature, label, mask = piece_data
-        m = feature.shape[1]
-        features[i, :, 0:m, 0:m] = feature
-        labels[i, 0:m, 0:m] = label
-        masks[i, 0:m, 0:m] = mask
+class ProteinCollator(object):
+    def __init__(self, block_size = 1):
+        super(ProteinCollator, self).__init__()
+        self.block_size = block_size
     
-    return features, labels, masks
+    def __call__(self, data):
+        assert len(data) > 0
+        max_m = np.max([x.shape[1] for (x, _, _) in data])
+        max_m = int(np.ceil(max_m / self.block_size) * self.block_size)
+        batch_size = len(data)
+        channel_size = data[0][0].shape[0]
+
+        features = torch.zeros((batch_size, channel_size, max_m, max_m), dtype = torch.float32)
+        labels = torch.zeros((batch_size, max_m, max_m), dtype = torch.int64)
+        masks = torch.zeros((batch_size, max_m, max_m), dtype = torch.bool)
+        for i, piece_data in enumerate(data):
+            feature, label, mask = piece_data
+            m = feature.shape[1]
+            features[i, :, 0:m, 0:m] = feature
+            labels[i, 0:m, 0:m] = label
+            masks[i, 0:m, 0:m] = mask
+        
+        return features, labels, masks

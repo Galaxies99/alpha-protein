@@ -7,6 +7,7 @@ import logging
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
+from time import perf_counter
 from torch import optim
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
@@ -14,11 +15,12 @@ from utils.loss import MaskedCrossEntropyLoss
 from utils.logger import ColoredLogger
 from utils.criterion import calc_batch_acc, calc_score
 from torch.optim.lr_scheduler import MultiStepLR
-from dataset import ProteinDataset, collate_fn
+from dataset import ProteinDataset, ProteinCollator
 from models.SampleNet import SampleNet
 from models.DeepCov import DeepCov
 from models.ResPRE import ResPRE
 from models.NLResPRE import NLResPRE
+from models.HaloNet import HaloNet
 
 
 logging.setLoggerClass(ColoredLogger)
@@ -57,18 +59,24 @@ TEMP_PATH = os.path.join(TEMP_DIR, NETWORK_NAME)
 if os.path.exists(TEMP_PATH) is False:
     os.makedirs(TEMP_PATH)
 
+if NETWORK_NAME == "HaloNet":
+    BLOCK_SIZE = NETWORK.get('block_size', 8)
+else:
+    BLOCK_SIZE = 1
+collator = ProteinCollator(block_size = BLOCK_SIZE)
+
 # Load data & Build dataset
 TRAIN_DIR = os.path.join('data', 'train')
 TRAIN_FEATURE_DIR = os.path.join(TRAIN_DIR, 'feature')
 TRAIN_LABEL_DIR = os.path.join(TRAIN_DIR, 'label')
 train_dataset = ProteinDataset(TRAIN_FEATURE_DIR, TRAIN_LABEL_DIR, TEMP_PATH, ZIPPED)
-train_dataloader = DataLoader(train_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn, num_workers = 16)
+train_dataloader = DataLoader(train_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collator, num_workers = 16)
 
 VAL_DIR = os.path.join('data', 'val')
 VAL_FEATURE_DIR = os.path.join(VAL_DIR, 'feature')
 VAL_LABEL_DIR = os.path.join(VAL_DIR, 'label')
 val_dataset = ProteinDataset(VAL_FEATURE_DIR, VAL_LABEL_DIR, TEMP_PATH, ZIPPED)
-val_dataloader = DataLoader(val_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn, num_workers = 16)
+val_dataloader = DataLoader(val_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collator, num_workers = 16)
 
 # Build model from configs
 if NETWORK_NAME == "SampleNet":
@@ -79,6 +87,8 @@ elif NETWORK_NAME == "ResPRE":
     model = ResPRE(NETWORK)
 elif NETWORK_NAME == "NLResPRE":
     model = NLResPRE(NETWORK)
+elif NETWORK_NAME == "HaloNet":
+    model = HaloNet(NETWORK)
 else:
     raise AttributeError("Invalid Network.")
 
@@ -122,6 +132,7 @@ def train_one_epoch(epoch):
     model.train()
     tot_batch = len(train_dataloader)
     for idx, data in enumerate(train_dataloader):
+        start_time = perf_counter()
         optimizer.zero_grad()
         feature, label, mask = data
         feature = feature.to(device)
@@ -133,7 +144,7 @@ def train_one_epoch(epoch):
         loss = criterion(result, label, mask)
         loss.backward()
         optimizer.step()
-        logger.info('Train epoch {}/{} batch {}/{}, loss: {:.12f}'.format(epoch + 1, MAX_EPOCH, idx + 1, tot_batch, loss.item()))
+        logger.info('Train epoch {}/{} batch {}/{}, time: {:.4f}s, loss: {:.12f}'.format(epoch + 1, MAX_EPOCH, idx + 1, tot_batch, perf_counter() - start_time, loss.item()))
     logger.info('Finish training process in epoch {}.'.format(epoch + 1))
 
 
@@ -145,6 +156,7 @@ def eval_one_epoch(epoch):
     acc = np.zeros((2, 4))
     tot_batch = len(val_dataloader)
     for idx, data in enumerate(val_dataloader):
+        start_time = perf_counter()
         feature, label, mask = data
         feature = feature.to(device)
         label = label.to(device)
@@ -156,7 +168,7 @@ def eval_one_epoch(epoch):
             loss = criterion(result, label, mask)
         result = F.softmax(result, dim = 1)
         acc_batch, batch_size = calc_batch_acc(label.cpu().detach().numpy(), mask.cpu().detach().numpy(), result.cpu().detach().numpy())
-        logger.info('Eval epoch {}/{} batch {}/{}, loss: {:.12f}'.format(epoch + 1, MAX_EPOCH, idx + 1, tot_batch, loss.item()))
+        logger.info('Eval epoch {}/{} batch {}/{}, time: {:.4f}s, loss: {:.12f}'.format(epoch + 1, MAX_EPOCH, idx + 1, tot_batch, perf_counter() - start_time, loss.item()))
         mean_loss += loss.item()
         acc += acc_batch * batch_size
         mean_loss += loss.item() * batch_size

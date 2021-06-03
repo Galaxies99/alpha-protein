@@ -9,13 +9,15 @@ adam_eps: 0.000001
 learning_rate: 0.005
 milestones: [15, 25, 35, 45]
 gamma: 0.2
-softmax: True
 checkpoint_dir: 'checkpoint'
 temp_dir: 'temp'
+softmax: True
 network:
-  name: 'NLResPRE'
+  name: 'HaloNet'
   input_channel: 441
-  output_channel: 10
   intermediate_channel: 64
-  block_type: 'BasicBlock'
-  blocks: 22
+  output_channel: 10
+  block_size: 8
+  halo_size: 4
+  dim_head: 64
+  heads: 4

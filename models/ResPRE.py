@@ -47,7 +47,7 @@ class ResPRE(nn.Module):
 
         self.layer = nn.Sequential(*layers)
 
-        self.lastlayer = nn.Conv2d(inplanes, 10, 3, padding=1, bias=False)
+        self.lastlayer = nn.Conv2d(inplanes, out_channel, 3, padding=1, bias=False)
 
 
     def forward(self, x):

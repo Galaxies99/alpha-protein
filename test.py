@@ -8,16 +8,18 @@ import warnings
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
+from time import perf_counter
 from torch import optim
 from torch.utils.data import DataLoader
 from utils.logger import ColoredLogger
 from utils.loss import MaskedCrossEntropyLoss
 from utils.criterion import calc_batch_acc, calc_score
-from dataset import ProteinDataset, collate_fn
+from dataset import ProteinDataset, ProteinCollator
 from models.SampleNet import SampleNet
 from models.DeepCov import DeepCov
 from models.ResPRE import ResPRE
 from models.NLResPRE import NLResPRE
+from models.HaloNet import HaloNet
 
 
 logging.setLoggerClass(ColoredLogger)
@@ -47,12 +49,19 @@ TEMP_PATH = os.path.join(TEMP_DIR, NETWORK_NAME)
 if os.path.exists(TEMP_PATH) is False:
     os.makedirs(TEMP_PATH)
 
+
+if NETWORK_NAME == "HaloNet":
+    BLOCK_SIZE = NETWORK.get('block_size', 8)
+else:
+    BLOCK_SIZE = 1
+collator = ProteinCollator(block_size = BLOCK_SIZE)
+
 # Load data & Build dataset
 TEST_DIR = os.path.join('data', 'test')
 TEST_FEATURE_DIR = os.path.join(TEST_DIR, 'feature')
 TEST_LABEL_DIR = os.path.join(TEST_DIR, 'label')
 test_dataset = ProteinDataset(TEST_FEATURE_DIR, TEST_LABEL_DIR, TEMP_PATH, ZIPPED)
-test_dataloader = DataLoader(test_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collate_fn, num_workers = 16)
+test_dataloader = DataLoader(test_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collator, num_workers = 16)
 
 # Build model from configs
 if NETWORK_NAME == "SampleNet":
@@ -63,6 +72,8 @@ elif NETWORK_NAME == "ResPRE":
     model = ResPRE(NETWORK)
 elif NETWORK_NAME == "NLResPRE":
     model = NLResPRE(NETWORK)
+elif NETWORK_NAME == "HaloNet":
+    model = HaloNet(NETWORK)
 else:
     raise AttributeError("Invalid Network.")
 
@@ -100,6 +111,7 @@ def test_one_epoch():
     acc = np.zeros((2, 4))
     tot_batch = len(test_dataloader)
     for idx, data in enumerate(test_dataloader):
+        start_time = perf_counter()
         feature, label, mask = data
         feature = feature.to(device)
         label = label.to(device)
@@ -111,7 +123,7 @@ def test_one_epoch():
             loss = criterion(result, label, mask)
         result = F.softmax(result, dim = 1)
         acc_batch, batch_size = calc_batch_acc(label.cpu().detach().numpy(), mask.cpu().detach().numpy(), result.cpu().detach().numpy())
-        logger.info('Test batch {}/{}, loss: {:.12f}'.format(idx + 1, tot_batch, loss.item()))
+        logger.info('Test batch {}/{}, time: {:.4f}, loss: {:.12f}'.format(idx + 1, tot_batch, perf_counter() - start_time, loss.item()))
         acc += acc_batch * batch_size
         mean_loss += loss.item() * batch_size
         count += batch_size
