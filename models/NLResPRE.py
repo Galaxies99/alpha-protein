@@ -15,7 +15,6 @@ class NLResPRE(nn.Module):
         if block_type not in ['BasicBlock', 'Bottleneck']:
             raise AttributeError('Invalid block type, block type should be BasicBlock or Bottleneck')
         block = BasicBlock if block_type == 'BasicBlock' else Bottleneck
-        attn = Cbam(hidden_channel) if block_type == 'BasicBlock' else Cbam(hidden_channel)
 
         self.conv1 = nn.Conv2d(in_channel, hidden_channel, kernel_size = 1, bias = False)
         self.in1 = nn.InstanceNorm2d(hidden_channel)
@@ -23,7 +22,11 @@ class NLResPRE(nn.Module):
 
         layer = []
         for _ in range(blocks):
-            layer.append(block(hidden_channel, hidden_channel, droprate = droprate, attention = attn))
+            layer.append(block(
+                hidden_channel, hidden_channel, 
+                droprate = droprate, 
+                attention = Cbam(hidden_channel)
+            ))
         self.layer = nn.Sequential(*layer)
 
         self.final = nn.Conv2d(hidden_channel, out_channel, kernel_size = 3, padding = 1, bias = False)

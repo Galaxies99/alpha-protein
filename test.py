@@ -114,6 +114,8 @@ def test_one_epoch():
     acc = np.zeros((2, 4))
     tot_batch = len(test_dataloader)
     for idx, data in enumerate(test_dataloader):
+        if device != torch.device('cpu'):
+            torch.cuda.empty_cache()
         start_time = perf_counter()
         feature, label, mask = data
         feature = feature.to(device)

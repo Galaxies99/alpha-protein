@@ -135,6 +135,8 @@ def train_one_epoch(epoch):
     model.train()
     tot_batch = len(train_dataloader)
     for idx, data in enumerate(train_dataloader):
+        if device != torch.device('cpu'):
+            torch.cuda.empty_cache()
         start_time = perf_counter()
         optimizer.zero_grad()
         feature, label, mask = data
@@ -159,6 +161,8 @@ def eval_one_epoch(epoch):
     acc = np.zeros((2, 4))
     tot_batch = len(val_dataloader)
     for idx, data in enumerate(val_dataloader):
+        if device != torch.device('cpu'):
+            torch.cuda.empty_cache()
         start_time = perf_counter()
         feature, label, mask = data
         feature = feature.to(device)
