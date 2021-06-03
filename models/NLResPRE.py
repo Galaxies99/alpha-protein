@@ -41,10 +41,10 @@ class BasicBlock(nn.Module):
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(planes)
+        self.in1 = nn.InstanceNorm2d(planes)
         self.relu = nn.ReLU(inplace=True)
         self.conv2 = nn.Conv2d(inplanes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
-        self.bn2 = nn.BatchNorm2d(planes)
+        self.in2 = nn.InstanceNorm2d(planes)
 
         self.ca = ChannelAttention(planes)
         self.sa = SpatialAttention()
@@ -56,11 +56,11 @@ class BasicBlock(nn.Module):
         residual = x
 
         out = self.conv1(x)
-        out = self.bn1(out)
+        out = self.in1(out)
         out = self.relu(out)
 
         out = self.conv2(out)
-        out = self.bn2(out)
+        out = self.in2(out)
 
         out = self.ca(out) * out
         out = self.sa(out) * out
@@ -80,12 +80,12 @@ class Bottleneck(nn.Module):
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(planes)
+        self.bn1 = nn.InstanceNorm2d(planes)
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride,
                                padding=1, bias=False)
-        self.bn2 = nn.BatchNorm2d(planes)
+        self.bn2 = nn.InstanceNorm2d(planes)
         self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1, bias=False)
-        self.bn3 = nn.BatchNorm2d(planes * 4)
+        self.bn3 = nn.InstanceNorm2d(planes * 4)
         self.relu = nn.ReLU(inplace=True)
 
         self.ca = ChannelAttention(planes * 4)
@@ -128,7 +128,7 @@ class NLResPRE(nn.Module):
         block = BasicBlock if block_type == 'BasicBlock' else Bottleneck
 
         self.conv1 = nn.Conv2d(in_channel, intermediate_channel, kernel_size=1, bias=False)
-        self.bn1 = nn.InstanceNorm2d(intermediate_channel)
+        self.in1 = nn.InstanceNorm2d(intermediate_channel)
         self.relu = nn.ReLU(inplace=True)
 
         layer = []
@@ -139,7 +139,7 @@ class NLResPRE(nn.Module):
         self.final = nn.Conv2d(intermediate_channel, out_channel, kernel_size=3, padding=1, bias=False)
 
     def forward(self, x):
-        x = self.relu(self.bn1(self.conv1(x)))
+        x = self.relu(self.in1(self.conv1(x)))
         x = self.layer(x)
         x = self.final(x)
 

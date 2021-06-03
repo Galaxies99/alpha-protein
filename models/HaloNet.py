@@ -166,24 +166,56 @@ class HaloAttention(nn.Module):
         return out
 
 
+class HaloBlock(nn.Module):
+    def __init__(self, dim, block_size, halo_size, dim_head, heads):
+        super(HaloBlock, self).__init__()
+        self.attn1 = HaloAttention(dim = dim, block_size = block_size, halo_size = halo_size, dim_head = dim_head, heads = heads)
+        self.in1 = nn.InstanceNorm2d(dim)
+        self.relu = nn.ReLU(inplace=True)
+        self.attn2 = HaloAttention(dim = dim, block_size = block_size, halo_size = halo_size, dim_head = dim_head, heads = heads)
+        self.in2 = nn.InstanceNorm2d(dim)
+
+    def forward(self, x):
+        residual = x
+
+        out = self.attn1(x)
+        out = self.in1(out)
+        out = self.relu(out)
+
+        out = self.attn2(out)
+        out = self.in2(out)
+
+        out += residual
+        out = self.relu(out)
+
+        return out
+
+
 class HaloNet(nn.Module):
     def __init__(self, args = {}):
         super(HaloNet, self).__init__()
         in_channel, out_channel = args.get('input_channel', 441), args.get('out_channel', 10)
         intermediate_channel = args.get('intermediate_channel', 64)
+        blocks = args.get('blocks', 22)
         block_size = args.get('block_size', 8)
         halo_size = args.get('halo_size', 4)
-        dim_head = args.get('dim_head', 64)
+        dim_head = args.get('dim_head', 16)
         heads = args.get('heads', 4)
-        self.conv = nn.Conv2d(in_channel, intermediate_channel, kernel_size = 1, stride = 1)
-        self.attn = HaloAttention(
-            dim = intermediate_channel,
-            block_size = block_size,
-            halo_size = halo_size,
-            dim_head = dim_head,
-            heads = heads
-        )
-        self.final = nn.Conv2d(intermediate_channel, out_channel, kernel_size = 1, stride = 1)
+
+        self.conv1 = nn.Conv2d(in_channel, intermediate_channel, kernel_size=1, bias=False)
+        self.in1 = nn.InstanceNorm2d(intermediate_channel)
+        self.relu = nn.ReLU(inplace=True)
+
+        layer = []
+        for i in range(0, int(blocks)):
+            layer.append(HaloBlock(intermediate_channel, block_size, halo_size, dim_head, heads))
+        self.layer = nn.Sequential(*layer)
+
+        self.final = nn.Conv2d(intermediate_channel, out_channel, kernel_size=3, padding=1, bias=False)
     
     def forward(self, x):
-        return self.final(self.attn(self.conv(x)))
+        x = self.relu(self.in1(self.conv1(x)))
+        x = self.layer(x)
+        x = self.final(x)
+
+        return x
