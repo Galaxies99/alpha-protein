@@ -60,8 +60,8 @@ class ProteinDataset(Dataset):
 
     def get_feature(self, dir, name, zipped = False):
         if zipped:
-            name = os.path.join(dir, name + ".npy.gz")
-            g_file = tarfile.open(name)
+            name = os.path.join(dir, name)
+            g_file = tarfile.open(name + ".npy.gz")
             extract_dir = os.path.join(self.temp_dir, name)
             g_file.extractall(extract_dir)
             file = os.listdir(extract_dir)
