@@ -15,9 +15,10 @@ softmax: True
 network:
   name: 'HaloNet'
   input_channel: 441
-  intermediate_channel: 64
-  blocks: 3
   output_channel: 10
+  hidden_channel: 64
+  dropout_rate: 0.2
+  blocks: 22
   block_size: 8
   halo_size: 4
   dim_head: 16

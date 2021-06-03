@@ -16,6 +16,6 @@ network:
   name: 'NLResPRE'
   input_channel: 441
   output_channel: 10
-  intermediate_channel: 64
+  hidden_channel: 64
   block_type: 'BasicBlock'
   blocks: 22

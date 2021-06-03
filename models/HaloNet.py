@@ -165,29 +165,29 @@ class HaloAttention(nn.Module):
         out = rearrange(out, '(b h w) (p1 p2) c -> b c (h p1) (w p2)', b = b, h = (h // block), w = (w // block), p1 = block, p2 = block)
         return out
 
-
-class HaloBlock(nn.Module):
-    def __init__(self, dim, block_size, halo_size, dim_head, heads):
-        super(HaloBlock, self).__init__()
-        self.attn1 = HaloAttention(dim = dim, block_size = block_size, halo_size = halo_size, dim_head = dim_head, heads = heads)
-        self.in1 = nn.InstanceNorm2d(dim)
-        self.relu = nn.ReLU(inplace=True)
-        self.attn2 = HaloAttention(dim = dim, block_size = block_size, halo_size = halo_size, dim_head = dim_head, heads = heads)
-        self.in2 = nn.InstanceNorm2d(dim)
+class BasicBlock(nn.Module):
+    def __init__(self, inplanes, planes, droprate = 0.2):
+        super(BasicBlock, self).__init__()
+        self.conv1 = nn.Conv2d(inplanes, planes, kernel_size = 3, padding = 1, bias = False)
+        self.bn1 = nn.InstanceNorm2d(planes)
+        self.relu = nn.ReLU(inplace = True)
+        self.conv2 = nn.Conv2d(planes, planes, kernel_size = 3, padding = 1, bias = False)
+        self.bn2 = nn.InstanceNorm2d(planes)
+        self.droprate = droprate
 
     def forward(self, x):
-        residual = x
-
-        out = self.attn1(x)
-        out = self.in1(out)
+        skip = x
+        out = self.conv1(x)
+        out = self.bn1(out)
+        if self.droprate > 0:
+            out = F.dropout(out, p = self.droprate, training = self.training)
         out = self.relu(out)
-
-        out = self.attn2(out)
-        out = self.in2(out)
-
-        out += residual
+        out = self.conv2(out)
+        out = self.bn2(out)
+        if self.droprate > 0:
+            out = F.dropout(out, p = self.droprate, training = self.training)
+        out += skip
         out = self.relu(out)
-
         return out
 
 
@@ -195,27 +195,46 @@ class HaloNet(nn.Module):
     def __init__(self, args = {}):
         super(HaloNet, self).__init__()
         in_channel, out_channel = args.get('input_channel', 441), args.get('out_channel', 10)
-        intermediate_channel = args.get('intermediate_channel', 64)
-        blocks = args.get('blocks', 3)
+        hidden_channel = args.get('hidden_channel', 64)
+        blocks = args.get('blocks', 22)
         block_size = args.get('block_size', 8)
         halo_size = args.get('halo_size', 4)
         dim_head = args.get('dim_head', 16)
         heads = args.get('heads', 4)
+        dropout_rate = args.get('dropout_rate', 0.2)
 
-        self.conv1 = nn.Conv2d(in_channel, intermediate_channel, kernel_size=1, bias=False)
-        self.in1 = nn.InstanceNorm2d(intermediate_channel)
-        self.relu = nn.ReLU(inplace=True)
+        self.conv = nn.Sequential(
+            nn.Conv2d(in_channel, hidden_channel, kernel_size = 1, bias = False),
+            nn.InstanceNorm2d(hidden_channel),
+            nn.ReLU(inplace = True)
+        )
 
         layer = []
-        for i in range(0, int(blocks)):
-            layer.append(HaloBlock(intermediate_channel, block_size, halo_size, dim_head, heads))
+        for _ in range(int(blocks)):
+            layer.append(BasicBlock(hidden_channel, hidden_channel, dropout_rate))
         self.layer = nn.Sequential(*layer)
 
-        self.final = nn.Conv2d(intermediate_channel, out_channel, kernel_size=3, padding=1, bias=False)
+        self.attn = HaloAttention(
+            dim = hidden_channel, 
+            block_size = block_size, 
+            halo_size = halo_size, 
+            dim_head = dim_head, 
+            heads = heads
+        )
+
+        self.fusion = nn.Sequential(
+            nn.Conv2d(hidden_channel + hidden_channel, hidden_channel, kernel_size = 3, padding = 1, bias = False),
+            nn.InstanceNorm2d(hidden_channel),
+            nn.ReLU(inplace = True)
+        )
+
+        self.final = nn.Conv2d(hidden_channel, out_channel, kernel_size = 1)
     
     def forward(self, x):
-        x = self.relu(self.in1(self.conv1(x)))
-        x = self.layer(x)
-        x = self.final(x)
-
-        return x
+        x = self.conv(x)
+        y1 = self.layer(x)
+        y2 = self.attn(x)
+        y = torch.cat([y1, y2], dim = 1)
+        y = self.fusion(y)
+        y = self.final(y)
+        return y

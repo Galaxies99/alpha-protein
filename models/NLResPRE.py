@@ -107,22 +107,22 @@ class NLResPRE(nn.Module):
     def __init__(self, args = {}):
         super(NLResPRE, self).__init__()
         in_channel, out_channel = args.get('input_channel', 441), args.get('out_channel', 10)
-        intermediate_channel = args.get('intermediate_channel', 64)
+        hidden_channel = args.get('hidden_channel', 64)
         blocks, block_type = int(args.get('blocks', 22)), args.get('block_type', 'BasicBlock')
         if block_type not in ['BasicBlock', 'Bottleneck']:
             raise AttributeError('Invalid block type, block type should be BasicBlock or Bottleneck')
         block = BasicBlock if block_type == 'BasicBlock' else Bottleneck
 
-        self.conv1 = nn.Conv2d(in_channel, intermediate_channel, kernel_size=1, bias=False)
-        self.in1 = nn.InstanceNorm2d(intermediate_channel)
+        self.conv1 = nn.Conv2d(in_channel, hidden_channel, kernel_size=1, bias=False)
+        self.in1 = nn.InstanceNorm2d(hidden_channel)
         self.relu = nn.ReLU(inplace=True)
 
         layer = []
         for _ in range(blocks):
-            layer.append(block(intermediate_channel, intermediate_channel))
+            layer.append(block(hidden_channel, hidden_channel))
         self.layer = nn.Sequential(*layer)
 
-        self.final = nn.Conv2d(intermediate_channel, out_channel, kernel_size=3, padding=1, bias=False)
+        self.final = nn.Conv2d(hidden_channel, out_channel, kernel_size=3, padding=1, bias=False)
 
     def forward(self, x):
         x = self.relu(self.in1(self.conv1(x)))
