@@ -1,131 +1,37 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from .resblocks import BasicBlock, Bottleneck
+from .attention import Cbam
 
-class ChannelAttention(nn.Module):
-    def __init__(self, in_planes, ratio=16):
-        super(ChannelAttention, self).__init__()
-        self.avg_pool = nn.AdaptiveAvgPool2d(1)
-        self.max_pool = nn.AdaptiveMaxPool2d(1)
-        self.fc = nn.Sequential(
-            nn.Conv2d(in_planes, in_planes // 16, 1, bias = False),
-            nn.ReLU(),
-            nn.Conv2d(in_planes // 16, in_planes, 1, bias = False)
-        )
-        self.sigmoid = nn.Sigmoid()
-
-    def forward(self, x):
-        avg_out = self.fc(self.avg_pool(x))
-        max_out = self.fc(self.max_pool(x))
-        out = avg_out + max_out
-        return self.sigmoid(out)
-
-
-class SpatialAttention(nn.Module):
-    def __init__(self, kernel_size = 7):
-        super(SpatialAttention, self).__init__()
-        self.conv1 = nn.Conv2d(2, 1, kernel_size = kernel_size, padding = kernel_size // 2, bias = False)
-        self.sigmoid = nn.Sigmoid()
-
-    def forward(self, x):
-        avg_out = torch.mean(x, dim = 1, keepdim = True)
-        max_out, _ = torch.max(x, dim = 1, keepdim = True)
-        x = torch.cat([avg_out, max_out], dim = 1)
-        x = self.conv1(x)
-        return self.sigmoid(x)
-
-
-class BasicBlock(nn.Module):
-    def __init__(self, inplanes, planes):
-        super(BasicBlock, self).__init__()
-        self.conv1 = nn.Conv2d(inplanes, planes, kernel_size = 3, stride = 1, padding = 1, bias = False)
-        self.in1 = nn.InstanceNorm2d(planes)
-        self.relu = nn.ReLU(inplace = True)
-
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size = 3, stride = 1, padding = 1, bias = False)
-        self.in2 = nn.InstanceNorm2d(planes)
-
-        self.ca = ChannelAttention(planes)
-        self.sa = SpatialAttention()
-
-    def forward(self, x):
-        skip = x
-        
-        out = self.conv1(x)
-        out = self.in1(out)
-        out = self.relu(out)
-
-        out = self.conv2(out)
-        out = self.in2(out)
-
-        out = self.ca(out) * out
-        out = self.sa(out) * out
-
-        out += skip
-        out = self.relu(out)
-        return out
-
-
-class Bottleneck(nn.Module):
-    def __init__(self, inplanes, planes):
-        super(Bottleneck, self).__init__()
-        self.conv1 = nn.Conv2d(inplanes, planes, kernel_size = 1, stride = 1, bias = False)
-        self.bn1 = nn.InstanceNorm2d(planes)
-
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size = 3, stride = 1, padding = 1, bias = False)
-        self.bn2 = nn.InstanceNorm2d(planes)
-
-        self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size = 1, stride = 1, bias=False)
-        self.bn3 = nn.InstanceNorm2d(planes * 4)
-        self.relu = nn.ReLU(inplace = True)
-        
-        self.ca = ChannelAttention(planes * 4)
-        self.sa = SpatialAttention()
-
-    def forward(self, x):
-        skip = x
-
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
-
-        out = self.conv2(out)
-        out = self.bn2(out)
-        out = self.relu(out)
-
-        out = self.conv3(out)
-        out = self.bn3(out)
-
-        out = self.ca(out) * out
-        out = self.sa(out) * out
-
-        out += skip
-        out = self.relu(out)
-        return out
 
 class NLResPRE(nn.Module):
     def __init__(self, args = {}):
         super(NLResPRE, self).__init__()
         in_channel, out_channel = args.get('input_channel', 441), args.get('out_channel', 10)
+        droprate = args.get('droprate', 0.2)
         hidden_channel = args.get('hidden_channel', 64)
         blocks, block_type = int(args.get('blocks', 22)), args.get('block_type', 'BasicBlock')
         if block_type not in ['BasicBlock', 'Bottleneck']:
             raise AttributeError('Invalid block type, block type should be BasicBlock or Bottleneck')
         block = BasicBlock if block_type == 'BasicBlock' else Bottleneck
+        attn = Cbam(hidden_channel) if block_type == 'BasicBlock' else Cbam(hidden_channel)
 
-        self.conv1 = nn.Conv2d(in_channel, hidden_channel, kernel_size=1, bias=False)
+        self.conv1 = nn.Conv2d(in_channel, hidden_channel, kernel_size = 1, bias = False)
         self.in1 = nn.InstanceNorm2d(hidden_channel)
         self.relu = nn.ReLU(inplace=True)
 
         layer = []
         for _ in range(blocks):
-            layer.append(block(hidden_channel, hidden_channel))
+            layer.append(block(hidden_channel, hidden_channel, droprate = droprate, attention = attn))
         self.layer = nn.Sequential(*layer)
 
-        self.final = nn.Conv2d(hidden_channel, out_channel, kernel_size=3, padding=1, bias=False)
+        self.final = nn.Conv2d(hidden_channel, out_channel, kernel_size = 3, padding = 1, bias = False)
 
     def forward(self, x):
-        x = self.relu(self.in1(self.conv1(x)))
+        x = self.conv1(x)
+        x = self.in1(x)
+        x = self.relu(x)
         x = self.layer(x)
         x = self.final(x)
         return x

@@ -25,8 +25,7 @@ class ProteinDataset(Dataset):
         self.label_dir = label_dir
         self.feature_dir = feature_dir
         self.temp_dir = temp_dir
-        if os.path.exists(self.temp_dir):
-            shutil.rmtree(self.temp_dir)
+        if os.path.exists(self.temp_dir) == False:
             os.makedirs(self.temp_dir)
         self.proteins = os.listdir(self.label_dir)
         self.zipped = zipped
