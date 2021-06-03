@@ -2,14 +2,13 @@
 
 # Alpha-Protein: Protein Contact-map Prediction Networks Implementations in PyTorch
 
-This is the official repository of alpha-protein, protein contact-map networks implementations in PyTorch framework. In the repository, we implement 3 main algorithm: DeepCov[1], ResPRE[2] and our proposed NLResPRE (non-local ResPRE).
+This is the official repository of alpha-protein, protein contact-map networks implementations in PyTorch framework. In the repository, we implement the following algorithms: DeepCov[1], ResPRE[2], our proposed NLResPRE (non-local ResPRE) based on CBAM[3], HaloNet based on Halo attention module[4] and DilatedResnet34[5].
 
 ## Requirements
 
-- torch
-- numpy
-
-Version to be specified.
+```bash
+pip install -r requirements.txt
+```
 
 ## Data Preprocessing
 
@@ -37,36 +36,21 @@ python test.py --cfg [Config File]
 
 ## Reference
 
-[1]  Jones, David T., and Shaun M. Kandathil. "High precision in protein contact prediction using fully convolutional neural networks and minimal sequence features." Bioinformatics 34.19 (2018): 3308-3315.
-[2]  Li, Yang, et al. "ResPRE: high-accuracy protein contact prediction by coupling precision matrix with deep residual neural networks." Bioinformatics 35.22 (2019): 4647-4655.
+1. Jones, David T., and Shaun M. Kandathil. "High precision in protein contact prediction using fully convolutional neural networks and minimal sequence features." Bioinformatics 34.19 (2018): 3308-3315.
+
+2. Li, Yang, et al. "ResPRE: high-accuracy protein contact prediction by coupling precision matrix with deep residual neural networks." Bioinformatics 35.22 (2019): 4647-4655.
+
+3. Vaswani, Ashish, et al. "Scaling local self-attention for parameter efficient visual backbones." arXiv preprint arXiv:2103.12731 (2021).
+
+4. Jiayan Xu. "Protein Contact Map Prediction Using Deep Convolutional Neural Network." master thesis of Shanghai Jiao Tong University (2019).
+
+5. Woo, Sanghyun, et al. "Cbam: Convolutional block attention module." Proceedings of the European conference on computer vision (ECCV). 2018.
 
 ## Citation
 
 If you found our work useful, please cite the following items.
 
 ```bibtex
-@article{jones2018high,
-  title =        {High precision in protein contact prediction using fully convolutional neural networks and minimal sequence features},
-  author =       {Jones, David T and Kandathil, Shaun M},
-  journal =      {Bioinformatics},
-  volume =       {34},
-  number =       {19},
-  pages =        {3308--3315},
-  year =         {2018},
-  publisher =    {Oxford University Press}
-}
-
-@article{li2019respre,
-  title =        {ResPRE: high-accuracy protein contact prediction by coupling precision matrix with deep residual neural networks},
-  author =       {Li, Yang and Hu, Jun and Zhang, Chengxin and Yu, Dong-Jun and Zhang, Yang},
-  journal =      {Bioinformatics},
-  volume =       {35},
-  number =       {22},
-  pages =        {4647--4655},
-  year =         {2019},
-  publisher =    {Oxford University Press}
-}
-
 @misc{fang2021alphaprotein,
   author =       {Hongjie Fang, Zhanda Zhu, Peishen Yan and Hao Yin},
   title =        {Alpha Protein: Protein Contact-map Prediction Networks Implementations in PyTorch},
