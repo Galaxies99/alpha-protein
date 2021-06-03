@@ -32,8 +32,10 @@ warnings.filterwarnings("ignore")
 # Parse Arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--cfg', default = os.path.join('configs', 'default.yaml'), help = 'Config File', type = str)
+parser.add_argument('--clean_cache', default = True, help = 'whether to clean the cache of GPU while training, evaluation and testing', type = bool)
 FLAGS = parser.parse_args()
 CFG_FILE = FLAGS.cfg
+CLEAN_CACHE = FLAGS.clean_cache
 
 with open(CFG_FILE, 'r') as cfg_file:
     cfg_dict = yaml.load(cfg_file, Loader=yaml.FullLoader)
@@ -135,7 +137,7 @@ def train_one_epoch(epoch):
     model.train()
     tot_batch = len(train_dataloader)
     for idx, data in enumerate(train_dataloader):
-        if device != torch.device('cpu'):
+        if CLEAN_CACHE and device != torch.device('cpu'):
             torch.cuda.empty_cache()
         start_time = perf_counter()
         optimizer.zero_grad()
@@ -161,7 +163,7 @@ def eval_one_epoch(epoch):
     acc = np.zeros((2, 4))
     tot_batch = len(val_dataloader)
     for idx, data in enumerate(val_dataloader):
-        if device != torch.device('cpu'):
+        if CLEAN_CACHE and device != torch.device('cpu'):
             torch.cuda.empty_cache()
         start_time = perf_counter()
         feature, label, mask = data
