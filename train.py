@@ -185,7 +185,7 @@ def eval_one_epoch(epoch):
     mean_loss = mean_loss / count
     acc = acc / count
     score = calc_score(acc)
-    logger.info('Finish evaluation process in epoch {}. Now calculating metrics ...')
+    logger.info('Finish evaluation process in epoch {}. Now calculating metrics ...'.format(epoch + 1))
     logger.info('Mean evaluation loss: {:.12f}'.format(mean_loss))
     logger.info('Mean acc: {}'.format(acc))
     logger.info('Score: {:.6f}'.format(score))
