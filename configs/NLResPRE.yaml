@@ -9,12 +9,14 @@ adam_eps: 0.000001
 learning_rate: 0.005
 milestones: [15, 25, 35, 45]
 gamma: 0.2
+softmax: True
 checkpoint_dir: 'checkpoint'
 temp_dir: 'temp'
-softmax: True
 network:
-  name: 'DeepCov'
+  name: 'NLResPRE'
   input_channel: 441
   output_channel: 10
   hidden_channel: 64
-  blocks: 10
+  droprate: 0
+  block_type: 'BasicBlock'
+  blocks: 22

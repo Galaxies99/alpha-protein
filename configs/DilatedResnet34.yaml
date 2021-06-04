@@ -9,12 +9,12 @@ adam_eps: 0.000001
 learning_rate: 0.005
 milestones: [15, 25, 35, 45]
 gamma: 0.2
+softmax: True
 checkpoint_dir: 'checkpoint'
 temp_dir: 'temp'
-softmax: True
 network:
-  name: 'DeepCov'
+  name: 'DilatedResnet34'
   input_channel: 441
   output_channel: 10
-  hidden_channel: 64
-  blocks: 10
+  arch_config: [[1, 16, 16, 3, 1], [1, 16, 32, 3, 1], [3, 32, 64, 3, 1], [4, 64, 96, 3, 1],[ 6, 96, 128, 3, 2], [3, 128, 160, 3, 4]]
+  

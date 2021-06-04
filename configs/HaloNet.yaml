@@ -13,8 +13,13 @@ checkpoint_dir: 'checkpoint'
 temp_dir: 'temp'
 softmax: True
 network:
-  name: 'DeepCov'
+  name: 'HaloNet'
   input_channel: 441
   output_channel: 10
   hidden_channel: 64
-  blocks: 10
+  dropout_rate: 0.2
+  blocks: 22
+  block_size: 8
+  halo_size: 4
+  dim_head: 16
+  heads: 4
