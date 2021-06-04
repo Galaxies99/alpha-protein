@@ -19,6 +19,7 @@ from models.SampleNet import SampleNet
 from models.DeepCov import DeepCov
 from models.ResPRE import ResPRE
 from models.NLResPRE import NLResPRE
+from models.CbamResPRE import CbamResPRE
 from models.HaloNet import HaloNet
 from models.DilatedResnet34 import DilatedResnet34
 
@@ -75,6 +76,8 @@ elif NETWORK_NAME == "ResPRE":
     model = ResPRE(NETWORK)
 elif NETWORK_NAME == "NLResPRE":
     model = NLResPRE(NETWORK)
+elif NETWORK_NAME == "CbamResPRE":
+    model = CbamResPRE(NETWORK)
 elif NETWORK_NAME == "HaloNet":
     model = HaloNet(NETWORK)
 elif NETWORK_NAME == "DilatedResnet34":
