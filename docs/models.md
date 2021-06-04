@@ -13,4 +13,4 @@ Here we illustrate the structures of the three models in our repository.
 
 ## Model 3: NLResPRE model for protein contact map prediction. (Ours)
 
-![](../imgs/respre.png)
+![](../imgs/nlrespre.png)
