@@ -13,7 +13,7 @@ checkpoint_dir: 'checkpoint'
 temp_dir: 'temp'
 softmax: True
 network:
-  name: 'HaloNet'
+  name: 'HaloResPRE'
   input_channel: 441
   output_channel: 10
   hidden_channel: 64
