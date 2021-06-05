@@ -194,7 +194,6 @@ def eval_one_epoch(epoch):
         result = F.softmax(result, dim = 1)
         acc_batch, batch_size = calc_batch_acc(label.cpu().detach().numpy(), mask.cpu().detach().numpy(), result.cpu().detach().numpy())
         logger.info('Eval epoch {}/{} batch {}/{}, time: {:.4f}s, loss: {:.12f}'.format(epoch + 1, MAX_EPOCH, idx + 1, tot_batch, perf_counter() - start_time, loss.item()))
-        mean_loss += loss.item()
         acc += acc_batch * batch_size
         mean_loss += loss.item() * batch_size
         count += batch_size
