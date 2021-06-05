@@ -19,8 +19,13 @@ from dataset import ProteinDataset, ProteinCollator
 from models.SampleNet import SampleNet
 from models.DeepCov import DeepCov
 from models.ResPRE import ResPRE
+from models.FCResPRE import FCResPRE
+from models.CbamResPRE import CbamResPRE
+from models.CbamFCResPRE import CbamFCResPRE
 from models.NLResPRE import NLResPRE
-from models.HaloNet import HaloNet
+from models.SEResPRE import SEResPRE
+from models.SEFCResPRE import SEFCResPRE
+from models.HaloResPRE import HaloResPRE
 from models.DilatedResnet34 import DilatedResnet34
 
 
@@ -52,6 +57,7 @@ LEARNING_RATE = cfg_dict.get('learning_rate', 0.001)
 MILESTONES = cfg_dict.get('milestones', [int(MAX_EPOCH / 2)])
 GAMMA = cfg_dict.get('gamma', 0.1)
 CHECKPOINT_DIR = cfg_dict.get('checkpoint_dir', 'checkpoint')
+DATA_DIR = cfg_dict.get('data_dir', 'data')
 TEMP_DIR = cfg_dict.get('temp_dir', 'temp')
 SOFTMAX = cfg_dict.get('softmax', True)
 NETWORK = cfg_dict.get('network', {})
@@ -62,20 +68,20 @@ TEMP_PATH = os.path.join(TEMP_DIR, NETWORK_NAME)
 if os.path.exists(TEMP_PATH) is False:
     os.makedirs(TEMP_PATH)
 
-if NETWORK_NAME == "HaloNet":
+if NETWORK_NAME == "HaloResPRE":
     BLOCK_SIZE = NETWORK.get('block_size', 8)
 else:
     BLOCK_SIZE = 1
 collator = ProteinCollator(block_size = BLOCK_SIZE)
 
 # Load data & Build dataset
-TRAIN_DIR = os.path.join('data', 'train')
+TRAIN_DIR = os.path.join(DATA_DIR, 'train')
 TRAIN_FEATURE_DIR = os.path.join(TRAIN_DIR, 'feature')
 TRAIN_LABEL_DIR = os.path.join(TRAIN_DIR, 'label')
 train_dataset = ProteinDataset(TRAIN_FEATURE_DIR, TRAIN_LABEL_DIR, TEMP_PATH, ZIPPED)
 train_dataloader = DataLoader(train_dataset, batch_size = BATCH_SIZE, shuffle = True, collate_fn = collator, num_workers = 16)
 
-VAL_DIR = os.path.join('data', 'val')
+VAL_DIR = os.path.join(DATA_DIR, 'val')
 VAL_FEATURE_DIR = os.path.join(VAL_DIR, 'feature')
 VAL_LABEL_DIR = os.path.join(VAL_DIR, 'label')
 val_dataset = ProteinDataset(VAL_FEATURE_DIR, VAL_LABEL_DIR, TEMP_PATH, ZIPPED)
@@ -88,10 +94,20 @@ elif NETWORK_NAME == "DeepCov":
     model = DeepCov(NETWORK)
 elif NETWORK_NAME == "ResPRE":
     model = ResPRE(NETWORK)
+elif NETWORK_NAME == "FCResPRE":
+    model = FCResPRE(NETWORK)
 elif NETWORK_NAME == "NLResPRE":
     model = NLResPRE(NETWORK)
-elif NETWORK_NAME == "HaloNet":
-    model = HaloNet(NETWORK)
+elif NETWORK_NAME == "CbamResPRE":
+    model = CbamResPRE(NETWORK)
+elif NETWORK_NAME == "CbamFCResPRE":
+    model = CbamFCResPRE(NETWORK)
+elif NETWORK_NAME == "SEResPRE":
+    model = SEResPRE(NETWORK)
+elif NETWORK_NAME == "SEFCResPRE":
+    model = SEFCResPRE(NETWORK)
+elif NETWORK_NAME == "HaloResPRE":
+    model = HaloResPRE(NETWORK)
 elif NETWORK_NAME == "DilatedResnet34":
     model = DilatedResnet34(NETWORK)
 else:

@@ -5,9 +5,9 @@ from .resblocks import BasicBlock
 from .attention import HaloAttention
 
 
-class HaloNet(nn.Module):
+class HaloResPRE(nn.Module):
     def __init__(self, args = {}):
-        super(HaloNet, self).__init__()
+        super(HaloResPRE, self).__init__()
         in_channel, out_channel = args.get('input_channel', 441), args.get('out_channel', 10)
         hidden_channel = args.get('hidden_channel', 64)
         blocks = args.get('blocks', 22)
