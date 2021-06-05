@@ -1,0 +1,21 @@
+batch_size: 2
+zipped: True
+multigpu: True
+max_epoch: 50
+adam_beta1: 0.9
+adam_beta2: 0.999
+adam_weight_decay: 0.01
+adam_eps: 0.000001
+learning_rate: 0.005
+milestones: [15, 25, 35, 45]
+gamma: 0.2
+checkpoint_dir: 'checkpoint'
+temp_dir: 'temp'
+softmax: True
+network:
+  name: 'FCResPRE'
+  input_channel: 441
+  output_channel: 10
+  hidden_channel: 64
+  droprate: 0.2
+  blocks: 22

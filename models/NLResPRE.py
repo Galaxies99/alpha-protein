@@ -1,40 +1,44 @@
 import torch
-import torch.nn as nn
+from torch import nn, einsum
 import torch.nn.functional as F
-from .resblocks import BasicBlock, Bottleneck
-from .attention import Cbam
+from .resblocks import BasicBlock
+from .attention import GlobalNonLocal
 
 
 class NLResPRE(nn.Module):
     def __init__(self, args = {}):
         super(NLResPRE, self).__init__()
         in_channel, out_channel = args.get('input_channel', 441), args.get('out_channel', 10)
-        droprate = args.get('droprate', 0.2)
         hidden_channel = args.get('hidden_channel', 64)
-        blocks, block_type = int(args.get('blocks', 22)), args.get('block_type', 'BasicBlock')
-        if block_type not in ['BasicBlock', 'Bottleneck']:
-            raise AttributeError('Invalid block type, block type should be BasicBlock or Bottleneck')
-        block = BasicBlock if block_type == 'BasicBlock' else Bottleneck
+        blocks = args.get('blocks', 22)
+        dropout_rate = args.get('dropout_rate', 0.2)
 
-        self.conv1 = nn.Conv2d(in_channel, hidden_channel, kernel_size = 1, bias = False)
-        self.in1 = nn.InstanceNorm2d(hidden_channel)
-        self.relu = nn.ReLU(inplace=True)
+        self.conv = nn.Sequential(
+            nn.Conv2d(in_channel, hidden_channel, kernel_size = 1, bias = False),
+            nn.InstanceNorm2d(hidden_channel),
+            nn.ReLU(inplace = True)
+        )
 
         layer = []
-        for _ in range(blocks):
-            layer.append(block(
-                hidden_channel, hidden_channel, 
-                droprate = droprate, 
-                attention = Cbam(hidden_channel)
-            ))
+        for _ in range(int(blocks)):
+            layer.append(BasicBlock(hidden_channel, hidden_channel, dropout_rate))
         self.layer = nn.Sequential(*layer)
 
-        self.final = nn.Conv2d(hidden_channel, out_channel, kernel_size = 3, padding = 1, bias = False)
+        self.attn = GlobalNonLocal(in_channel = hidden_channel)
 
+        self.fusion = nn.Sequential(
+            nn.Conv2d(hidden_channel + hidden_channel, hidden_channel, kernel_size = 3, padding = 1, bias = False),
+            nn.InstanceNorm2d(hidden_channel),
+            nn.ReLU(inplace = True)
+        )
+
+        self.final = nn.Conv2d(hidden_channel, out_channel, kernel_size = 1)
+    
     def forward(self, x):
-        x = self.conv1(x)
-        x = self.in1(x)
-        x = self.relu(x)
-        x = self.layer(x)
-        x = self.final(x)
-        return x
+        x = self.conv(x)
+        y1 = self.layer(x)
+        y2 = self.attn(x)
+        y = torch.cat([y1, y2], dim = 1)
+        y = self.fusion(y)
+        y = self.final(y)
+        return y

@@ -18,8 +18,13 @@ from dataset import ProteinDataset, ProteinCollator
 from models.SampleNet import SampleNet
 from models.DeepCov import DeepCov
 from models.ResPRE import ResPRE
+from models.FCResPRE import FCResPRE
+from models.CbamResPRE import CbamResPRE
+from models.CbamFCResPRE import CbamFCResPRE
 from models.NLResPRE import NLResPRE
-from models.HaloNet import HaloNet
+from models.SEResPRE import SEResPRE
+from models.SEFCResPRE import SEFCResPRE
+from models.HaloResPRE import HaloResPRE
 from models.DilatedResnet34 import DilatedResnet34
 
 
@@ -53,7 +58,7 @@ if os.path.exists(TEMP_PATH) is False:
     os.makedirs(TEMP_PATH)
 
 
-if NETWORK_NAME == "HaloNet":
+if NETWORK_NAME == "HaloResPRE":
     BLOCK_SIZE = NETWORK.get('block_size', 8)
 else:
     BLOCK_SIZE = 1
@@ -73,10 +78,20 @@ elif NETWORK_NAME == "DeepCov":
     model = DeepCov(NETWORK)
 elif NETWORK_NAME == "ResPRE":
     model = ResPRE(NETWORK)
+elif NETWORK_NAME == "FCResPRE":
+    model = FCResPRE(NETWORK)
 elif NETWORK_NAME == "NLResPRE":
     model = NLResPRE(NETWORK)
-elif NETWORK_NAME == "HaloNet":
-    model = HaloNet(NETWORK)
+elif NETWORK_NAME == "CbamResPRE":
+    model = CbamResPRE(NETWORK)
+elif NETWORK_NAME == "CbamFCResPRE":
+    model = CbamFCResPRE(NETWORK)
+elif NETWORK_NAME == "SEResPRE":
+    model = SEResPRE(NETWORK)
+elif NETWORK_NAME == "SEFCResPRE":
+    model = SEFCResPRE(NETWORK)
+elif NETWORK_NAME == "HaloResPRE":
+    model = HaloResPRE(NETWORK)
 elif NETWORK_NAME == "DilatedResnet34":
     model = DilatedResnet34(NETWORK)
 else:
