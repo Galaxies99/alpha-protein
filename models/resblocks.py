@@ -70,7 +70,7 @@ class Bottleneck(nn.Module):
 
         out = self.conv3(out)
         out = self.in3(out)
-        if self.droprate > 0:
+        if self.training and self.droprate > 0:
             out = F.dropout(out, p = self.droprate, training = self.training)
         
         if self.attention is not None:
@@ -78,7 +78,7 @@ class Bottleneck(nn.Module):
 
         skip = self.skip_conv(skip)
         skip = self.skip_in(skip)
-        if self.droprate > 0:
+        if self.training and self.droprate > 0:
             skip = F.dropout(skip, p = self.droprate, training = self.training)
 
         out += skip
