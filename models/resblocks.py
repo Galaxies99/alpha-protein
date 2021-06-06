@@ -18,13 +18,13 @@ class BasicBlock(nn.Module):
         skip = x
         out = self.conv1(x)
         out = self.in1(out)
-        if self.training and self.droprate > 0:
+        if self.droprate > 0:
             out = F.dropout(out, p = self.droprate, training = self.training)
         out = self.relu(out)
 
         out = self.conv2(out)
         out = self.in2(out)
-        if self.training and self.droprate > 0:
+        if self.droprate > 0:
             out = F.dropout(out, p = self.droprate, training = self.training)
         
         if self.attention is not None:
@@ -58,19 +58,19 @@ class Bottleneck(nn.Module):
         skip = x
         out = self.conv1(x)
         out = self.in1(out) 
-        if self.training and self.droprate > 0:
+        if self.droprate > 0:
             out = F.dropout(out, p = self.droprate, training = self.training)
         out = self.relu(out)
 
         out = self.conv2(out)
         out = self.in2(out)
-        if self.training and self.droprate > 0:
+        if self.droprate > 0:
             out = F.dropout(out, p = self.droprate, training = self.training)
         out = self.relu(out)
 
         out = self.conv3(out)
         out = self.in3(out)
-        if self.training and self.droprate > 0:
+        if self.droprate > 0:
             out = F.dropout(out, p = self.droprate, training = self.training)
         
         if self.attention is not None:
@@ -78,7 +78,7 @@ class Bottleneck(nn.Module):
 
         skip = self.skip_conv(skip)
         skip = self.skip_in(skip)
-        if self.training and self.droprate > 0:
+        if self.droprate > 0:
             skip = F.dropout(skip, p = self.droprate, training = self.training)
 
         out += skip
