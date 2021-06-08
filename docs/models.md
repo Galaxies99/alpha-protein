@@ -1,5 +1,6 @@
 # Models
-Here we illustrate the structures of the three models in our repository.
+
+Here we illustrate the structures of the models in our repository.
 
 ## Model 1: DeepCov
 
@@ -36,3 +37,4 @@ Here we illustrate the structures of the three models in our repository.
 ## Model 9: SE-FC-ResPRE for Ablation Studies
 
 ![](../imgs/sefcrespre.png)
+

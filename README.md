@@ -11,10 +11,10 @@ In the repository, we implement the following classic models:
   
 as well as our proposed models
 
-- Cbam-ResPRE based on Cbam attention mechanism [3];
-- SE-ResPRE based on squeeze-and-excitation attention mechanism [4];
-- Halo-ResPRE based on Halo block attention mechanism [5];
-- NL-ResPRE based on non-local attention mechanism [6].
+- Cbam-ResPRE based on Cbam attention mechanism [3] and ResPRE model;
+- SE-ResPRE based on squeeze-and-excitation attention mechanism [4] and ResPRE model;
+- Halo-ResPRE based on Halo block attention mechanism [5] and ResPRE model;
+- NL-ResPRE based on non-local attention mechanism [6] and ResPRE model.
 
 We also provides models for ablation studies, namely FC-Res-PRE, Cbam-FC-ResPRE and SE-FC-ResPRE, which are based on ResPRE, Cbam-ResPRE and SE-ResPRE respectively except only changing the kernel size of the final convolution block to 1x1 according to the idea of FCN [7]. A dilated residual network named DilatedResnet34 [8] is also provided for ablation studies in order to see whether the dilation process may improve the performances.
 

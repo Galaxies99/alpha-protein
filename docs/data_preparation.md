@@ -1,10 +1,10 @@
 # Data Preparation
 
 ## Provided dataset
-1. Download dataset `feature.zip` and `label.zip` from [google drive](https://drive.google.com/drive/folders/1rDsIOE8eAVL46tMMjZTsk94c8TVlLBUV?usp=sharing)
-2. Unzip them into ` your_project/data` directory.
-   
-   Then, the `data` folder should have the following structure.
+
+1. Download dataset `feature.zip` and `label.zip` from [Google Drive](https://drive.google.com/drive/folders/1rDsIOE8eAVL46tMMjZTsk94c8TVlLBUV?usp=sharing)
+
+2. Unzip them into the `data` directory. Then, the `data` folder should have the following structure.
 
    ```
    data
@@ -12,19 +12,20 @@
    |   ├── *.npy.gz
    |   └── *.npy.gz
    └── label
-       ├── *.npy.gz
-       └── *.npy.gz
+       ├── *.npy
+       └── *.npy
    ```
-3. Execute our data preprocessing python file to divide data files into three parts: 
+
+3. Execute our data preprocessing python file to divide data files into three parts:
    * Training data: 80%
    * Evaluation data: 10%
    * Testing data: 10%
+  
    ```bash
-   cd utils
-   python preprocessing.py
+   python utils/preprocessing.py
    ```
 
-   Then, the `data` folder should have the following structure.
+   After that, the `data` folder should have the following structure.
 
    ```
    data
@@ -32,35 +33,39 @@
    |   ├── *.npy.gz
    |   └── *.npy.gz
    ├── label
-   |   ├── *.npy.gz
-   |   └── *.npy.gz
+   |   ├── *.npy
+   |   └── *.npy
    ├── test
    |   ├── feature
    |   |   ├── *.npy.gz
    |   |   └── *.npy.gz
    |   └── label
-   |       ├── *.npy.gz
-   |       └── *.npy.gz
+   |       ├── *.npy
+   |       └── *.npy
    ├── train
    |   ├── feature
    |   |   └── *.npy.gz
    |   └── label
-   |       └── *.npy.gz
+   |       └── *.npy
    └── val
        ├── feature
        |   └── *.npy.gz
        └── label
-           └── *.npy.gz
+           └── *.npy
    ```
 
 ## Prepared by yourself
-If you want to prepare for the data yourselves, you should package your features and labels data into `*.npy.gz` files respectively, which means
-a numpy array should be output as a `.npy` file and zipped into `.gz` file.
 
-**Feature**: Precision matrix of Multiple Sequence Alignments (MSAs)
-, a `L*L*441` numpy array.
+If you want to prepare for the data yourselves, you should package your features and labels data into `*.npy.gz` files and `.npy` files respectively, and put them under the data folder as illustrated below.
 
-**Label**: Protein contact map with ten classes, a `L*L*10` numpy array.
+```
+data
+├── feature
+|   ├── *.npy.gz
+|   └── *.npy.gz
+└── label
+   ├── *.npy
+   └── *.npy
+```
 
-
-
+The provided configuration of our model will take an LxLx441 matrix as an input and output an LxLx10 contact-map, and you can change the input channel and output channel in the configuration files to satisfy your input/output channels. For details about the configuration file, see [docs/configurations.md](configurations.md)
