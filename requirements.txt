@@ -1,5 +1,6 @@
 torch
 numpy
+pandas
 scipy
 scikit-learn
 PyYaml

@@ -1,40 +1,38 @@
 # Models
 Here we illustrate the structures of the three models in our repository.
 
-## Model 1: DeepCov model for protein contact map prediction. (Baseline)
+## Model 1: DeepCov
 
 ![](../imgs/deepcov.png)
 
-## Model 2: ResPRE model for protein contact map prediction. (Baseline)
-
+## Model 2: ResPRE
 
 ![](../imgs/respre.png)
 
-## Model 2.5: FCResPRE model for protein contact map prediction. (Baseline)
-
-
-![](../imgs/fcrespre.png)
-
-## Model 3: CbamResPRE model for protein contact map prediction. (Ours)
+## Model 3: Cbam-ResPRE
 
 ![](../imgs/cbamrespre.png)
 
-## Model 3.5: CbamFCResPRE model for protein contact map prediction. (Ours)
-
-![](../imgs/cbamfcrespre.png)
-
-## Model 4: SEResPRE model for protein contact map prediction. (Ours)
+## Model 4: SE-ResPRE model
 
 ![](../imgs/serespre.png)
 
-## Model 4.5: SEFCResPRE model for protein contact map prediction. (Ours)
+## Model 5: Halo-ResPRE
 
-![](../imgs/sefcrespre.png)
+![](../imgs/halorespre.png)
 
-## Model 5: NLResPRE model for protein contact map prediction. (Ours)
+## Model 6: NL-ResPRE
 
 ![](../imgs/nlrespre.png)
 
-## Model 6: HaloResPRE model for protein contact map prediction. (Ours)
+## Model 7: FC-ResPRE for Ablation Studies
 
-![](../imgs/halorespre.png)
+![](../imgs/fcrespre.png)
+
+## Model 8: Cbam-FC-ResPRE for Ablation Studies
+
+![](../imgs/cbamfcrespre.png)
+
+## Model 9: SE-FC-ResPRE for Ablation Studies
+
+![](../imgs/sefcrespre.png)

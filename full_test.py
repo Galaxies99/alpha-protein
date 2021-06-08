@@ -36,10 +36,12 @@ warnings.filterwarnings("ignore")
 # Parse Arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--cfg', default = os.path.join('configs', 'default.yaml'), help = 'Config File', type = str)
+parser.add_argument('--path', default = 'checkpoint', helo = 'File saving path', type = str)
 parser.add_argument('--clean_cache', action = 'store_true', help = 'whether to clean the cache of GPU while training, evaluation and testing')
 FLAGS = parser.parse_args()
 CFG_FILE = FLAGS.cfg
 CLEAN_CACHE = FLAGS.clean_cache
+PATH = FLAGS.path
 
 with open(CFG_FILE, 'r') as cfg_file:
     cfg_dict = yaml.load(cfg_file, Loader=yaml.FullLoader)
@@ -113,8 +115,7 @@ def test(epoch_id):
     criterion = MaskedCrossEntropyLoss()
 
     # Read model from checkpoints
-    checkpoint_network_name = NETWORK_NAME if NETWORK_NAME != 'FCResPRE' else 'ResPRE'
-    checkpoint_file = os.path.join(CHECKPOINT_DIR, NETWORK_NAME, 'checkpoint_{}_{}.tar'.format(checkpoint_network_name, epoch_id))
+    checkpoint_file = os.path.join(CHECKPOINT_DIR, 'checkpoint_{}_{}.tar'.format(NETWORK_NAME, epoch_id))
     # logger.info(f'Loading checkpoint: {checkpoint_file}')
     if os.path.isfile(checkpoint_file):
         checkpoint = torch.load(checkpoint_file)
@@ -176,9 +177,9 @@ if __name__ == '__main__':
         losses.append(loss)
         accs.append(acc)
         scores.append(score)
-        logger.info(f"* Epoch: {i}, loss: {loss:.6f}, acc: {acc}, score: {score:.6f}")
+        logger.info(f"*** Epoch: {i}, loss: {loss:.6f}, acc: {acc}, score: {score:.6f}")
     
     import pandas as pd
     output = [[losses[i], accs[i], scores[i]] for i in range(MAX_EPOCH)]
     df = pd.DataFrame(output)
-    df.to_csv(f'test_{NETWORK_NAME}.csv', index=True, index_label='epoch', header=['Losses', 'Accs', 'Scores'])
+    df.to_csv(os.path.join(PATH, f'test_{NETWORK_NAME}.csv'), index=True, index_label='epoch', header=['Losses', 'Accs', 'Scores'])
