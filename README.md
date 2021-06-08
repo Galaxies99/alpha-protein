@@ -61,7 +61,7 @@ Please see [docs/models.md](docs/models.md) for details.
 
 Before training, fine-tuning or testing of the models, please set up your own configurations correctly. Please see [docs/configurations.md](docs/configurations.md) for details.
 
-## Training
+## Training (Optional)
 
 Execute the following command to begin training.
 
