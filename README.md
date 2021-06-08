@@ -113,18 +113,18 @@ score = (3 * ST1 + 2 * ST2 + 5 * ST5 + ST10) + 2 * (3 * LT1 + 2 * LT2 + 5 * LT5 
 
 where `ST1`, `ST2`, `ST5` and `ST10` are the short-term top-L, top-L/2, top-L/5, top-L/10 metrics respectively, and `LT1`, `LT2`, `LT5` and `LT10` are the long-term top-L, top-L/2, top-L/5, top-L/10 metrics respectively.
 
-Here is the table of the performance of all models except NL-ResPRE due to memory reason, based on our provided dataset and our provided pretrained models.
+Here is the table of the performance of all models except NL-ResPRE due to memory reason, based on our provided dataset and our provided pretrained models. We use the notations introduced above to simplify the table.
 
-| Models | Short-term Top-L | Short-term Top-L/2 | Short-term Top-L/5 | Short-term Top L/10 | Long-term Top-L | Long-term Top-L/2 | Long-term Top-L/5 | Long-term Top L/10 | Score
+| Models | ST1 | ST2 | ST5 | ST10 | LT1 | LT2 | LT5 | LT10 | Score
 | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
 | DeepCov (baseline) | 0.6947 | 0.6763 | 0.6282 | 0.5747 | 0.4672 | 0.4453 | 0.4057 | 0.3710 | 16.54 |
 | ResPRE (baseline) | 0.6841 | 0.6731 | 0.6258 | 0.5670 | 0.4687 | 0.4499 | 0.4013 | 0.3577 | 16.44 |
 | Dilated-Resnet34 (ablation study) | 0.6572 | 0.6366 | 0.5934 | 0.5472 | 0.4674 | 0.4424 | 0.4060 | 0.3731 | 16.13 |
 | Cbam-ResPRE (ours) | 0.6749 | 0.6552 | 0.6198 | 0.5793 | 0.4973 | 0.4714 | 0.4284 | 0.3878 | 16.94 |
-| Cbam-FC-ResPRE (ours) | 0.7534 | 0.7269 | 0.6639 | <font color=red> **0.5942** </font> | 0.4848 | 0.4576 | 0.4144 | 0.3775 | 17.26 |
+| Cbam-FC-ResPRE (ours) | 0.7534 | 0.7269 | 0.6639 | **0.5942** | 0.4848 | 0.4576 | 0.4144 | 0.3775 | 17.26 |
 | SE-ResPRE (ours) | 0.7094 | 0.6819 | 0.6303 | 0.5793 | 0.4934 | 0.4676 | 0.4304 | 0.3938 | 17.14 |
-| SE-FC-ResPRE (ours) | 0.7120 | 0.6928 | 0.6426 | 0.5839 | 0.5040 | 0.4741 | <font color=red>**0.4329**</font> | <font color=red>**0.3939**</font> | 17.36 |
-| Halo-ResPRE (ours) | <font color=red>**0.7590**</font> | <font color=red>**0.7336**</font> | <font color=red>**0.6680**</font> | 0.5922 | <font color=red>**0.5054**</font> | <font color=red>**0.4750**</font> | 0.4250 | 0.3797 | <font color=red>**17.62**</font> |
+| SE-FC-ResPRE (ours) | 0.7120 | 0.6928 | 0.6426 | 0.5839 | 0.5040 | 0.4741 | **0.4329** | **0.3939** | 17.36 |
+| Halo-ResPRE (ours) | **0.7590** | **0.7336** | **0.6680** | 0.5922 | **0.5054** | **0.4750** | 0.4250 | 0.3797 | **17.62** |
 
 ## Citation
 
