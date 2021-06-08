@@ -18,6 +18,19 @@ Download the features and the labels into the `data` folder, then execute the fo
 python utils/preprocessing.py
 ```
 
+## Models
+
+* Model 1: DeepCov model for protein contact map prediction using fully convolutional neural networks with precision matrix as input. (Baseline)
+* Model 2: ResPRE model for protein contact map prediction using deep residual neural networks with precision matrix as input. (Baseline)
+* Model 3: NLResPRE model for protein contact map prediction using improved ResPRE model with precision matrix as input. (Ours)
+
+Please see [docs/models.md](docs/models.md) for details.
+
+## Configurations
+
+Before training, evaluation and inference of the models, please set up your own configurations correctly. Please see [docs/configurations.md](docs/configurations.md) for details.
+
+
 ## Training
 
 ```bash
