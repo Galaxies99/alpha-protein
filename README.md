@@ -34,7 +34,7 @@ pip install -r requirements.txt
 
 ## Data Preparation
 
-Download our provided dataset `feature.zip` and `label.zip` from [Google Drive](https://drive.google.com/drive/folders/1rDsIOE8eAVL46tMMjZTsk94c8TVlLBUV?usp=sharing) and unzip them into the `data` directory. After that, execute the following commands to divide them into training set, validation set and testing set.
+Download our provided dataset `feature.zip` and `label.zip` from [Google Drive](https://drive.google.com/drive/folders/1rDsIOE8eAVL46tMMjZTsk94c8TVlLBUV?usp=sharing) or [Baidu Netdisk](https://pan.baidu.com/s/1XJ5o8TTQT7HFG4w3XcMR7w) (Extract Code: fcjv), and unzip them into the `data` directory. After that, execute the following commands to divide them into training set, validation set and testing set.
 
 ```bash
 python utils/preprocessing.py
@@ -44,7 +44,7 @@ You can also prepare your own datasets, see [docs/data_preparation.md](docs/data
 
 ## Pretrained Models
 
-You can download full pretrained models at []() and [](). After downloading the each pretrained models, put it under the `checkpoint` folder (if the folder does not exist, then create it by yourself). Then, you can directly use it for testing or fine-tuning. Please see [docs/pretrained_models.md](docs/pretrained_models.md) for details.
+You can download full pretrained models at []() or [](). After downloading the each pretrained models, put it under the `checkpoint` folder (if the folder does not exist, then create it by yourself). Then, you can directly use it for testing or fine-tuning. Please see [docs/pretrained_models.md](docs/pretrained_models.md) for details.
 
 ## Models
 

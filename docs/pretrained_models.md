@@ -1,6 +1,6 @@
 # Pretrained Models
 
-Pretrained models are already released at []() and [](). After your download the pretrained models, put it in the `checkpoint` folder under the main directory, then you can test them or continue fine-tuning them.
+Pretrained models are already released at []() or [](). After your download the pretrained models, put it in the `checkpoint` folder under the main directory, then you can test them or continue fine-tuning them.
 
 The checkpoint folder should have the following structure, where `checkpoint_xxx.tar` are the pretrained models that you have downloaded.
 
