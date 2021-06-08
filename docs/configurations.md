@@ -19,7 +19,7 @@ All the provided default configuration files are stored in the `configs` folder,
 - `FCResPRE.yaml` is the default configuration file of FC-ResPRE model;
 - `CbamFCResPRE.yaml` is the default configuration file of Cbam-FC-ResPRE model;
 - `SEFCResPRE.yaml` is the default configuration file of SE-FC-ResPRE model;
-- `DilatedResnet34.yaml` is the default configuration file of Dilated Resnet 34 model.
+- `DilatedResnet34.yaml` is the default configuration file of Dilated-Resnet34 model.
 
 You can refer to the given configuration file to set up your own configurations. In the next sections we will introduce the possible items in the configuration of each model.
 
@@ -147,9 +147,9 @@ Here are the items that describes the SE-FC-ResPRE network in the configuration 
 - `droprate`: float, optional, default: 0.2, the dropout rate in the residual block;
 - `reduction`: int, optional, defaulr: 4, the reduction rate of the squeeze-and-excitation module.
 
-## Network Configurations: DilatedResnet34
+## Network Configurations: Dilated-Resnet34
 
-Here are the items that describes the DilatedResnet34 network in the configuration file.
+Here are the items that describes the Dilated-Resnet34 network in the configuration file.
 
 - `name`: "DilatedResnet34".
 - `input_channel`: int, optional, default: 441, the dimension of input;
