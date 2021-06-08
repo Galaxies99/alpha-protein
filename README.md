@@ -26,13 +26,19 @@ Execute the following commands to install the required packages.
 pip install -r requirements.txt
 ```
 
-## Data Preprocessing
+## Data Preparation
 
-Download the features and the labels into the `data` folder, then execute the following commands.
+Download our provided dataset `feature.zip` and `label.zip` from [Google Drive](https://drive.google.com/drive/folders/1rDsIOE8eAVL46tMMjZTsk94c8TVlLBUV?usp=sharing) and unzip them into the `data` directory. After that, execute the following commands to divide them into training set, validation set and testing set.
 
 ```bash
 python utils/preprocessing.py
 ```
+
+You can also prepare your own datasets, see [docs/data_preparation.md](docs/data_preparation.md) for details.
+
+## Pretrained Models
+
+You can download full pretrained models at []() and [](). After downloading the each pretrained models, put it under the `checkpoint` folder (if the folder does not exist, then create it by yourself). Then, you can directly use it for testing or fine-tuning. Please see [docs/pretrained_models.md](docs/pretrained_models.md) for details.
 
 ## Models
 
@@ -53,7 +59,7 @@ Please see [docs/models.md](docs/models.md) for details.
 
 ## Configurations
 
-Before training, evaluation and inference of the models, please set up your own configurations correctly. Please see [docs/configurations.md](docs/configurations.md) for details.
+Before training, fine-tuning or testing of the models, please set up your own configurations correctly. Please see [docs/configurations.md](docs/configurations.md) for details.
 
 ## Training
 

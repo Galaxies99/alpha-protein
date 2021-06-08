@@ -15,7 +15,7 @@ class HaloResPRE(nn.Module):
         halo_size = args.get('halo_size', 4)
         dim_head = args.get('dim_head', 16)
         heads = args.get('heads', 4)
-        dropout_rate = args.get('dropout_rate', 0.2)
+        dropout_rate = args.get('droprate', 0.2)
 
         self.conv = nn.Sequential(
             nn.Conv2d(in_channel, hidden_channel, kernel_size = 1, bias = False),

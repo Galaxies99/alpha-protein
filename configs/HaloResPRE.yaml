@@ -17,7 +17,7 @@ network:
   input_channel: 441
   output_channel: 10
   hidden_channel: 64
-  dropout_rate: 0.2
+  droprate: 0.2
   blocks: 22
   block_size: 8
   halo_size: 4

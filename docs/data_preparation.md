@@ -2,7 +2,7 @@
 
 ## Provided dataset
 
-1. Download dataset `feature.zip` and `label.zip` from [Google Drive](https://drive.google.com/drive/folders/1rDsIOE8eAVL46tMMjZTsk94c8TVlLBUV?usp=sharing)
+1. Download our provided dataset `feature.zip` and `label.zip` from [Google Drive](https://drive.google.com/drive/folders/1rDsIOE8eAVL46tMMjZTsk94c8TVlLBUV?usp=sharing)
 
 2. Unzip them into the `data` directory. Then, the `data` folder should have the following structure.
 
