@@ -65,7 +65,7 @@ else:
 collator = ProteinCollator(block_size = BLOCK_SIZE)
 
 # Load data & Build dataset
-TEST_DIR = os.path.join('data', 'test')
+TEST_DIR = os.path.join('data', 'val')
 TEST_FEATURE_DIR = os.path.join(TEST_DIR, 'feature')
 TEST_LABEL_DIR = os.path.join(TEST_DIR, 'label')
 test_dataset = ProteinDataset(TEST_FEATURE_DIR, TEST_LABEL_DIR, TEMP_PATH, ZIPPED)
