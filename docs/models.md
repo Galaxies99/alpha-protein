@@ -37,4 +37,4 @@ Here we illustrate the structures of the three models in our repository.
 
 ## Model 6: HaloResPRE model for protein contact map prediction. (Ours)
 
-![](../imgs/halonet.png)
+![](../imgs/halorespre.png)
