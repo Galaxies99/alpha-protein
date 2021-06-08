@@ -1,20 +1,22 @@
-![](imgs/alpha-protein.png)
+![alpha-protein](imgs/alpha-protein.png)
 
 # Alpha-Protein: Protein Contact-map Prediction Boosted by Attention
 
-This is the official repository of "Alpha-Protein: Protein Contact-map Prediction Boosted by Attention". In the repository, we implement the following classic models:
+This is the official repository of "Alpha-Protein: Protein Contact-map Prediction Boosted by Attention". In this work, we applied the current attention mechanisms into the current protein contact-map prediction networks, and reached a relatively great results.
+
+In the repository, we implement the following classic models:
 
 - DeepCov [1];
 - ResPRE [2];
   
 as well as our proposed models
 
-- CbamResPRE based on Cbam attention mechanism [3];
-- SEResPRE based on squeeze-and-excitation attention mechanism [4];
-- HaloResPRE based on Halo block attention mechanism [5];
-- NLResPRE based on non-local attention mechanism [6].
+- Cbam-ResPRE based on Cbam attention mechanism [3];
+- SE-ResPRE based on squeeze-and-excitation attention mechanism [4];
+- Halo-ResPRE based on Halo block attention mechanism [5];
+- NL-ResPRE based on non-local attention mechanism [6].
 
-We also provides models for ablation studies, namely FCResPRE, CbamFCResPRE and SEFCResPRE, which are based on ResPRE, CbamResPRE and SEResPRE respectively except only changing the kernel size of the final convolution block to 1x1 according to the idea of FCN [7]. A dilated residual network named DilatedResnet34 [8] is also provided for ablation studies in order to see whether the dilation process may improve the performances.
+We also provides models for ablation studies, namely FC-Res-PRE, Cbam-FC-ResPRE and SE-FC-ResPRE, which are based on ResPRE, Cbam-ResPRE and SE-ResPRE respectively except only changing the kernel size of the final convolution block to 1x1 according to the idea of FCN [7]. A dilated residual network named DilatedResnet34 [8] is also provided for ablation studies in order to see whether the dilation process may improve the performances.
 
 ## Requirements
 
@@ -53,7 +55,6 @@ Please see [docs/models.md](docs/models.md) for details.
 
 Before training, evaluation and inference of the models, please set up your own configurations correctly. Please see [docs/configurations.md](docs/configurations.md) for details.
 
-
 ## Training
 
 Execute the following command to begin training.
@@ -84,7 +85,7 @@ python full_test.py --cfg [Config File]
                     (--clean_cache)
 ```
 
-which will automatically test all the checkpoints and save the result into a csv file in `[File Saving Path]` named `test_[Network Name].csv`, which includes the accuracy and scores of every checkpoint of the model. 
+which will automatically test all the checkpoints and save the result into a csv file in `[File Saving Path]` named `test_[Network Name].csv`, which includes the accuracy and scores of every checkpoint of the model.
 
 ## Citation
 
