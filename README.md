@@ -22,7 +22,7 @@ as well as our proposed models
 - Halo-ResPRE based on Halo block attention mechanism [5] and ResPRE model;
 - NL-ResPRE based on non-local attention mechanism [6] and ResPRE model.
 
-We also provides models for ablation studies, namely FC-Res-PRE, Cbam-FC-ResPRE and SE-FC-ResPRE, which are based on ResPRE, Cbam-ResPRE and SE-ResPRE respectively except only changing the kernel size of the final convolution block to 1x1 according to the idea of FCN [7]. A dilated residual network named DilatedResnet34 [8] is also provided for ablation studies in order to see whether the dilation process may improve the performances.
+We also provides models for ablation studies, namely FC-Res-PRE, Cbam-FC-ResPRE and SE-FC-ResPRE, which are based on ResPRE, Cbam-ResPRE and SE-ResPRE respectively except only changing the kernel size of the final convolution block to 1x1 according to the idea of FCN [7]. A dilated residual network named DilatedResnet34 [8] is also provided for ablation studies in order to see whether the dilation [10] process may improve the performances.
 
 ## Requirements
 
@@ -58,7 +58,7 @@ This repository provides totally 10 models, namely
 - ResPRE model;
 - Cbam-ResPRE model;
 - SE-ResPRE model;
-- Halo-ResPRE model, where the Halo block refers to the implementation of lucidrains [9];
+- Halo-ResPRE model, where the Halo block refers to the implementation of [lucidrains](https://github.com/lucidrains/) [9];
 - NL-ResPRE model;
 - FC-ResPRE model used for ablation studies;
 - Cbam-FC-ResPRE model used for ablation studies;
@@ -158,3 +158,5 @@ If you found our work useful, please cite the following items.
 8. Jiayan Xu. "Protein Contact Map Prediction Using Deep Convolutional Neural Network." master thesis of Shanghai Jiao Tong University (2019).
 
 9. lucidrains/halonet-pytorch, Github repository: [https://github.com/lucidrains/halonet-pytorch](https://github.com/lucidrains/halonet-pytorch)
+
+10. Yu, Fisher, and Vladlen Koltun. "Multi-scale context aggregation by dilated convolutions." arXiv preprint arXiv:1511.07122 (2015).
