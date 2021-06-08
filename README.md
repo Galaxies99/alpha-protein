@@ -80,6 +80,16 @@ python train.py --cfg [Config File]
 
 where `[Config File]` is `config/default.yaml` by default, which points to a sample network (SampleNet). The optional `--clean_cache` will automatically clean the caches after every epochs to save the GPU memory.
 
+If you want to select a model from all checkpoints (the training results after each epoch) , please execute the following command.
+
+```bash
+python selector.py --cfg [Config File] 
+                   --path [File Saving Path] 
+                   (--clean_cache)
+```
+
+which will automatically test all the checkpoints **on the validation set** and save the result into a csv file in `[File Saving Path]` named `test_[Network Name].csv`, which includes the accuracy and scores of every checkpoint of the model. Then you can choose the model based on the testing result.
+
 ## Testing
 
 Execute the following command to test the saved model.
@@ -89,17 +99,7 @@ python test.py --cfg [Config File]
                (--clean_cache)
 ```
 
-where `[Config File]` is `config/default.yaml` by default, which points to a sample network (SampleNet). The optional `--clean_cache` will automatically clean the caches after every epochs to save the GPU memory.
-
-If you want to test all checkpoints (the training results after each epoch) of a model, please execute the following command.
-
-```bash
-python full_test.py --cfg [Config File] 
-                    --path [File Saving Path] 
-                    (--clean_cache)
-```
-
-which will automatically test all the checkpoints and save the result into a csv file in `[File Saving Path]` named `test_[Network Name].csv`, which includes the accuracy and scores of every checkpoint of the model.
+where `[Config File]` is `config/default.yaml` by default, which points to a sample network (SampleNet). The optional `--clean_cache` will automatically clean the caches after every epochs to save the GPU memory. Notice that the testing model should have a name of `checkpoint_[Network Name].tar` in `checkpoint` folder, where `[Network Name]` is the network name specified in the configuration file.
 
 ## Citation
 
