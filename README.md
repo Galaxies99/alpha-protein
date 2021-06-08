@@ -48,7 +48,7 @@ This repository provides totally 10 models, namely
 - ResPRE model;
 - Cbam-ResPRE model;
 - SE-ResPRE model;
-- Halo-ResPRE model;
+- Halo-ResPRE model, where the Halo block refers to the implementation of lucidrains [9];
 - NL-ResPRE model;
 - FC-ResPRE model used for ablation studies;
 - Cbam-FC-ResPRE model used for ablation studies;
@@ -123,3 +123,5 @@ If you found our work useful, please cite the following items.
 7. Long, Jonathan, Evan Shelhamer, and Trevor Darrell. "Fully convolutional networks for semantic segmentation." Proceedings of the IEEE conference on computer vision and pattern recognition. 2015.
 
 8. Jiayan Xu. "Protein Contact Map Prediction Using Deep Convolutional Neural Network." master thesis of Shanghai Jiao Tong University (2019).
+
+9. lucidrains/halonet-pytorch, Github repository: [https://github.com/lucidrains/halonet-pytorch](https://github.com/lucidrains/halonet-pytorch)
