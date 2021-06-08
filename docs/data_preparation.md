@@ -2,6 +2,10 @@
 
 ## Provided dataset
 
+Our dataset provides the precision matrix (PRE) of size `L * L * 441`, and ground-truth labels of `L * L * 10`. Notice that our dataset is a 10-class classification task, rather than the traditional binary classification task in protein contact-map prediction. Specifically, our dataset divide the distance into ten categories, namely 0-4Å, 4-6Å, 6-8Å, ..., 18-20Å, >20Å, instead of the traditional two categories 0-8Å and >8Å. Therefore, our datasets are a more challenging task.
+
+If you use our dataset, please follow the steps below.
+
 1. Download our provided dataset `feature.zip` and `label.zip` from [Google Drive](https://drive.google.com/drive/folders/1rDsIOE8eAVL46tMMjZTsk94c8TVlLBUV?usp=sharing) or [Baidu Netdisk](https://pan.baidu.com/s/1XJ5o8TTQT7HFG4w3XcMR7w) (Extract Code: fcjv).
 
 2. Unzip them into the `data` directory. Then, the `data` folder should have the following structure.
@@ -16,7 +20,7 @@
        └── *.npy
    ```
 
-3. Execute our data preprocessing python file to divide data files into three parts:
+3. Execute our data preprocessing python file to divide data files into three parts according to the `reference.json` file in the data folder:
    * Training data: 80%
    * Evaluation data: 10%
    * Testing data: 10%
