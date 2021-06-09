@@ -111,11 +111,11 @@ We evaluate both the short-term metrics and the long-term metrics, including top
 score = (3 * ST1 + 2 * ST2 + 5 * ST5 + ST10) + 2 * (3 * LT1 + 2 * LT2 + 5 * LT5 + LT10)
 ```
 
-where `ST1`, `ST2`, `ST5` and `ST10` are the short-term top-L/10, top-L/5, top-L/2, top-L metrics respectively, and `LT1`, `LT2`, `LT5` and `LT10` are the long-term top-L/10, top-L/5, top-L/2, top-L metrics respectively.
+where `ST10`, `ST5`, `ST2` and `ST1` are the short-term top-L/10, top-L/5, top-L/2, top-L metrics respectively, and `LT10`, `LT5`, `LT2` and `LT1` are the long-term top-L/10, top-L/5, top-L/2, top-L metrics respectively.
 
 Here is the table of the performance of all models except NL-ResPRE due to memory reason, based on our provided dataset and our provided pretrained models. We use the notations introduced above to simplify the table.
 
-| Models | ST1 | ST2 | ST5 | ST10 | LT1 | LT2 | LT5 | LT10 | Score
+| Models | ST10 | ST5 | ST2 | ST1 | LT10 | LT5 | LT2 | LT1 | Score
 | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
 | DeepCov (baseline) | 0.6947 | 0.6763 | 0.6282 | 0.5747 | 0.4672 | 0.4453 | 0.4057 | 0.3710 | 16.29 |
 | ResPRE (baseline) | 0.6841 | 0.6731 | 0.6258 | 0.5670 | 0.4687 | 0.4499 | 0.4013 | 0.3577 | 16.19 |
