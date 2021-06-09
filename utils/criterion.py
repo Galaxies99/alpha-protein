@@ -71,6 +71,6 @@ def calc_batch_acc(label, mask, pred):
 
 
 def calc_score(acc):
-    t1, t2, t5, t10 = acc[0, 0], acc[0, 1], acc[0, 2], acc[0, 3]
-    lt1, lt2, lt5, lt10 = acc[1, 0], acc[1, 1], acc[1, 2], acc[1, 3]
+    t10, t5, t2, t1 = acc[0, 0], acc[0, 1], acc[0, 2], acc[0, 3]
+    lt10, lt5, lt2, lt1 = acc[1, 0], acc[1, 1], acc[1, 2], acc[1, 3]
     return (3 * t1 + 2 * t2 + 5 * t5 + t10) + 2 * (3 * lt1 + 2 * lt2 + 5 * lt5 + lt10)
