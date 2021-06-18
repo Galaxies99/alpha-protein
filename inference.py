@@ -139,4 +139,4 @@ def inference():
 
 
 if __name__ == '__main__':
-    loss, acc = inference()
+    inference()
