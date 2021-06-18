@@ -96,3 +96,49 @@ class ProteinCollator(object):
             masks[i, 0:m, 0:m] = mask
         
         return features, labels, masks
+
+
+class ProteinInferenceDataset(Dataset):
+    '''
+    Protein dataset
+    '''
+    def __init__(self, feature_dir, temp_dir, zipped):
+        '''
+        Construct protein dataset
+        Parameters
+        ----------
+        feature_dir: the feature directory;
+        label_dir: the label directory;
+        zipped: whether the data is zipped.
+        '''
+        super(ProteinInferenceDataset, self).__init__()
+        self.feature_dir = feature_dir
+        self.temp_dir = temp_dir
+        if os.path.exists(self.temp_dir) == False:
+            os.makedirs(self.temp_dir)
+        self.proteins = os.listdir(self.feature_dir)
+        self.zipped = zipped
+
+    def __getitem__(self, index):
+        prot_name = self.proteins[index]
+        prot_name = prot_name[:prot_name.find('.')]
+        feature = self.get_feature(self.feature_dir, prot_name, self.zipped)
+        return prot_name, torch.FloatTensor(feature)
+
+    def __len__(self):
+        return len(self.proteins)
+
+    def get_feature(self, dir, name, zipped = False):
+        if zipped:
+            name = os.path.join(dir, name)
+            g_file = tarfile.open(name + ".npy.gz")
+            extract_dir = os.path.join(self.temp_dir, name)
+            g_file.extractall(extract_dir)
+            file = os.listdir(extract_dir)
+            tmp_feature = np.load(os.path.join(extract_dir, file[0]))
+            tmp_feature = np.transpose(tmp_feature, (2, 0, 1))
+            shutil.rmtree(extract_dir)
+        else:
+            name = os.path.join(dir, name + ".npy")
+            tmp_feature = np.load(name)
+        return tmp_feature
