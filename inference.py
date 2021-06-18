@@ -128,6 +128,7 @@ def inference():
         new_feature = torch.zeros((1, feature.shape[0], newL, newL), dtype = torch.float32)
         new_feature[0, :, 0:L, 0:L] = feature
         new_feature = new_feature.to(device)
+        del feature
         with torch.no_grad():
             result = model(new_feature)
             result = F.softmax(result, dim = 1)
