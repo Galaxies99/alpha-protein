@@ -114,6 +114,8 @@ python inference.py --cfg [Config File]
 
 where `[Config File]` is `config/default.yaml` by default, which points to a sample network (SampleNet). The optional `--clean_cache` will automatically clean the caches after every epochs to save the GPU memory. Notice that the testing model should have a name of `checkpoint_[Network Name].tar` in `checkpoint` folder, where `[Network Name]` is the network name specified in the configuration file.
 
+Notice that the inference will take a `L * L * 441` precision matrix (feature) as input and output a `L * L * 10` prediction contact-map after softmax layer.
+
 ## Metrics
 
 We evaluate both the short-term metrics and the long-term metrics, including top-L, top-L/2, top-L/5 and top-L/10. And we define a score based on these metrics, which has the folloing form:
