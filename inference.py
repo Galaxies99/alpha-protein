@@ -134,7 +134,7 @@ def inference():
             result = F.softmax(result, dim = 1)
             result = result.detach().cpu().numpy()
             result = result[0, :, 0:L, 0:L]
-            result = result.transpose(2, 0, 1)
+            result = result.transpose(1, 2, 0)
             np.save(os.path.join(inference_dir, name + '.npy'), result)
 
     logger.info('Finish inference process.')
