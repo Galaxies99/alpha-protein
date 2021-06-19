@@ -9,6 +9,8 @@ data/train/
 data/test/
 data/val/
 data/inference/
+inference_*/
+test_*/
 temp/
 checkpoint/
 
