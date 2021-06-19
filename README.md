@@ -1,14 +1,14 @@
-![alpha-protein](imgs/alpha-protein.png)
+![alpha-protein](assets/imgs/alpha-protein.png)
 
 # Alpha-Protein: Protein Contact-map Prediction Boosted by Attention
 
-This is the official repository of "Alpha-Protein: Protein Contact-map Prediction Boosted by Attention".
+This is the official repository of "Alpha-Protein: Protein Contact-map Prediction Boosted by Attention". [[Papers](assets/paper.pdf)]
 
 ## Introduction
 
 In this work, we reviewed the previous protein contact-map prediction models and applied the several attention mechanisms into the classic protein contact-map prediction networks ResPRE. The combination has reached a relatively great results, which improve both short-term and long-term prediction by approximately 6%. After all,
 
-![attention](imgs/attention.png)
+![attention](assets/imgs/attention.png)
 
 In the repository, we implement the following classic models:
 
